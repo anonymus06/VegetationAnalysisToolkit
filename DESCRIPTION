@@ -1,0 +1,28 @@
+Package: VegetationAnalysisToolkit
+Title: Functions for NDVI and Chlorophyll Data Analysis
+Version: 0.0.0.9000
+Authors@R: 
+    person("Levente", "Czelnai", email = "levente.czelnai@gmail.com", role = c("cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: Supports detailed handling of NDVI and Chlorophyll data, offering functions for efficient processing, analysis, and visualization capabilities for comprehensive insights into vegetation health and dynamics.
+License: GPL-3 + file LICENSE
+Encoding: UTF-8
+Imports:
+    openxlsx, 
+    dplyr,
+    stringr,
+    ggplot2,
+    lubridate,
+    plotly, 
+    readxl
+RoxygenNote: 7.3.1
+Depends:
+    R (>= 3.5.0)
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
+URL: https://github.com/YourUsername/VegetationAnalysisToolkit
+BugReports: https://github.com/YourUsername/VegetationAnalysisToolkit/issues
+Config/testthat/edition: 3
+VignetteBuilder: knitr
