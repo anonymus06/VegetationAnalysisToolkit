@@ -139,7 +139,12 @@ process_NDVI <- function(folder_path, output, filename, lower_limit, upper_limit
 
   # Optionally validate the data for integrity and structure.
   # Validation ensures that the data conforms to expected formats and contains no inconsistencies.
-  if (validate == TRUE){ check_data(all_data, variable)}
+  if (validate == TRUE){
+   is_valid <- check_data(all_data, variable)
+   if (!is_valid) {
+    stop("Data validation failed. Processing has been halted.")
+   }
+  }
 
   # Apply a series of transformations to prepare the data for analysis.
   # Transformations include standardizing formats, adding date information, renaming columns, and more.
