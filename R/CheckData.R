@@ -66,13 +66,15 @@ check_data <- function(df, variable) {
   # Generates warnings in the R console for each data frame with identified issues, providing immediate feedback.
   if (length(issues) > 0) {
     for (name in names(issues)) {
-      warning(paste("Issues in", name, ":", paste(issues[[name]], collapse=", ")))
+     issue_details <- paste(issues[[name]], collapse="\n")
+     warning_message <- paste0("Issues in ", name, ":\n", issue_details)
+     warning(warning_message)
     }
   }
 
   # Return Check Status
   # Indicates whether the checks passed without issues (TRUE) or if any issues were identified (FALSE).
-  # It is may be redundant (I do not use this logical value later)
+  # It is maybe redundant (I do not use this logical value later)
   return(length(issues) == 0)  # Return TRUE if no issues, FALSE otherwise
 }
 
