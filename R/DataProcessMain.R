@@ -98,9 +98,7 @@ process_Chlorophyll <- function(folder_path, output, filename, lower_limit, uppe
 #'   4. Applies transformations to standardize and enrich the data.
 #'   5. Saves the transformed data into designated output files.
 #'
-#' @section README:
-#' Guidelines for Preparing Your Input Files:
-#'
+#' @section Input File Guidelines:
 #' Ensure your input data files are properly formatted and named according to the following guidelines to
 #' facilitate successful processing:
 #'
@@ -128,85 +126,118 @@ process_Chlorophyll <- function(folder_path, output, filename, lower_limit, uppe
 #' @return None explicitly, but processed NDVI data is saved as Excel files in the specified output directory.
 #'
 #' @export
-process_NDVI <- function(folder_path, output, filename, lower_limit, upper_limit, variable, validate) {
- general_warnings_env <- new.env()
- general_warnings_env$all_warnings <- list()
- validation_warnings_env <- new.env()
- validation_warnings_env$validation_warnings <- list()
+process_NDVI <-
+ function(folder_path,
+          output,
+          filename,
+          lower_limit,
+          upper_limit,
+          variable,
+          validate) {
+  general_warnings_env <- new.env()
+  general_warnings_env$all_warnings <- list()
+  validation_warnings_env <- new.env()
+  validation_warnings_env$validation_warnings <- list()
+  validation_failed <- FALSE
 
- # Custom warning collector for general warnings
- collect_general_warning <- function(w) {
-  general_warnings_env$all_warnings <- append(general_warnings_env$all_warnings, list(conditionMessage(w)))
-  invokeRestart("muffleWarning")
- }
+  # Custom warning collector for general warnings
+  collect_general_warning <- function(w) {
+   general_warnings_env$all_warnings <-
+    append(general_warnings_env$all_warnings,
+           list(conditionMessage(w)))
+   invokeRestart("muffleWarning")
+  }
 
- # Read-in input data from specified folder path
- all_data <- tryCatch({
-  read_NDVI(folder_path)
- }, error = function(e) {
-  handle_general_condition(e, "error")
- })
 
- # Filter out non-data columns from the raw NDVI files
- all_data <- tryCatch({
-  filter_data(all_data)
- }, error = function(e) {
-  handle_general_condition(e, "error")
- })
-
- validation_failed <- FALSE
-
- # Optionally validate the data for integrity and structure
- if (validate) {
-  validation_result <- withCallingHandlers({
-   check_data(all_data, variable)
-  }, warning = collect_general_warning, error = function(e) {
+  # Read-in input data from specified folder path
+  all_data <- tryCatch({
+   read_NDVI(folder_path)
+  }, error = function(e) {
    handle_general_condition(e, "error")
   })
 
-  is_valid <- validation_result$is_valid
-  validation_warnings <- validation_result$validation_warnings
+  # Filter out non-data columns from the raw NDVI files
+  all_data <- tryCatch({
+   filter_data(all_data)
+  }, error = function(e) {
+   handle_general_condition(e, "error")
+  })
 
-  if (length(validation_warnings) > 0) {
-   summary_msg <- paste("Input data validation completed with", length(validation_warnings), "warnings.\nCheck 'val_issues.txt' for details.")
-   log_validation_issue(paste("Detailed warnings:\n", paste(validation_warnings, collapse = "\n")))
+  # Optionally validate the data for integrity and structure
+  if (validate) {
+   validation_result <- withCallingHandlers({
+    check_data(all_data, variable)
+   }, warning = collect_general_warning, error = function(e) {
+    handle_general_condition(e, "error")
+   })
+   is_valid <- validation_result$is_valid
+   validation_warnings <- validation_result$validation_warnings
+
+   if (length(validation_warnings) > 0) {
+    summary_msg <-
+     paste(
+      "Input data validation completed with",
+      length(validation_warnings),
+      "warnings.\nCheck 'val_issues.txt' for details."
+     )
+    log_validation_issue(paste(
+     "Detailed warnings:\n",
+     paste(validation_warnings, collapse = "\n")
+    ))
+    warning(summary_msg)
+   } else {
+    message("Validation completed without warnings.")
+   }
+
+   if (!is_valid) {
+    validation_failed <- TRUE
+   }
+  }
+
+  if (!validation_failed) {
+
+   # Apply a series of transformations to prepare the data for analysis
+   last_df <-
+    all_data[[length(all_data)]]  # Extract the last dataframe for special processing
+   all_data <- tryCatch({
+    mapply(
+     map_NDVI,
+     all_data[-length(all_data)],
+     names(all_data)[-length(all_data)],
+     MoreArgs = list(last_df = last_df),
+     SIMPLIFY = FALSE
+    )
+   }, error = function(e) {
+    handle_general_condition(e, "error")
+   })
+
+   # Save the processed data to Excel files in the specified output directory
+   tryCatch({
+    save_ndvi(all_data, output, filename, lower_limit, upper_limit)
+   }, error = function(e) {
+    handle_general_condition(e, "error")
+   })
+  }
+
+
+  # Summarize and print general warnings
+  if (length(general_warnings_env$all_warnings) > 0) {
+   summary_msg <-
+    paste(
+     "Processing completed with",
+     length(general_warnings_env$all_warnings),
+     "general warnings.\nCheck 'error_log.txt' for details."
+    )
+   log_general_issue(paste(
+    "Detailed warnings:\n",
+    paste(general_warnings_env$all_warnings, collapse = "\n")
+   ))
    warning(summary_msg)
   } else {
-   message("Validation completed without warnings.")
+   message("Processing completed without general warnings.")
   }
 
-  if (!is_valid) {
-   validation_failed <- TRUE
-  }
  }
-
-
- if (!validation_failed) {
-  # Apply a series of transformations to prepare the data for analysis
-  last_df <- all_data[[length(all_data)]]  # Extract the last dataframe for special processing
-  all_data <- tryCatch({
-   mapply(map_NDVI, all_data[-length(all_data)], names(all_data)[-length(all_data)], MoreArgs = list(last_df = last_df), SIMPLIFY = FALSE)
-  }, error = function(e) {
-   handle_general_condition(e, "error")
-  })
-
-  # Save the processed data to Excel files in the specified output directory
-  tryCatch({
-   save_ndvi(all_data, output, filename, lower_limit, upper_limit)
-  }, error = function(e) {
-   handle_general_condition(e, "error")
-  })
- }
-
- # Summarize and print general warnings
- if (length(general_warnings_env$all_warnings) > 0) {
-  summary_msg <- paste("Processing completed with", length(general_warnings_env$all_warnings), "general warnings.\nCheck 'error_log.txt' for details.")
-  log_general_issue(paste("Detailed warnings:\n", paste(general_warnings_env$all_warnings, collapse = "\n")))
-  warning(summary_msg)
- } else {
-  message("Processing completed without general warnings.")
- }
-}
 
 #' Function to select the desired rows (defined in the excel file) from the raw data (txt file)!
 #'

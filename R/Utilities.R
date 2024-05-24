@@ -12,26 +12,6 @@ add_issue <- function(issues, name, issue_message) {
   return(issues)
 }
 
-#' Helper Function to Log Issues into a Text File
-#'
-#' @param issues A list of named issue vectors to be logged.
-#' @param filepath A string specifying the path to the file where the issues should be logged.
-#'
-#' @details Each issue is logged with its category name followed by the issue messages.
-#'          If an error occurs during file writing, an error message is printed to the console.
-log_issues_to_file <- function(issues, filepath) {
-  # Combine all issues into a single character vector
-  issue_messages <- unlist(lapply(names(issues), function(name) {
-    paste(name, issues[[name]], sep=": ")
-  }))
-  # Write to file
-  tryCatch({ # (e.g., the file path is not writable, the disk is full, or the file is locked)
-    writeLines(issue_messages, filepath)
-  }, error = function(e) {
-    cat("An error occurred while writing to the file:", e$message, "\n")
-  })
-}
-
 #' Logging Function for Validation Issues
 #'
 #' @param msg Character string containing the message to be logged.
@@ -46,7 +26,8 @@ log_issues_to_file <- function(issues, filepath) {
 #' @examples
 #' log_validation_issue("This is a validation issue.")
 log_validation_issue <- function(msg, log_file = "val_issues.txt") {
- cat(paste(Sys.time(), "-", msg, "\n"), file = log_file, append = TRUE)
+ timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+ cat(paste(timestamp, "-", msg, "\n"), file = log_file, append = TRUE)
 }
 
 #' Logging Function for General Errors and Warnings
@@ -63,7 +44,8 @@ log_validation_issue <- function(msg, log_file = "val_issues.txt") {
 #' @examples
 #' log_general_issue("This is a general warning or error message.")
 log_general_issue <- function(msg, log_file = "error_log.txt") {
- cat(paste(Sys.time(), "-", msg, "\n"), file = log_file, append = TRUE)
+ timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+ cat(paste(timestamp, "-", msg, "\n"), file = log_file, append = TRUE)
 }
 
 #' Handler for General Warnings and Errors
