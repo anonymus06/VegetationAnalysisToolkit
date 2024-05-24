@@ -32,17 +32,61 @@ log_issues_to_file <- function(issues, filepath) {
   })
 }
 
-# Logging function for validation issues
+#' Logging Function for Validation Issues
+#'
+#' @param msg Character string containing the message to be logged.
+#' @param log_file Character string specifying the file to which the log message should be written. Defaults to "val_issues.txt".
+#'
+#' @details This function logs validation-related messages to a specified log file.
+#'          Each log entry is prepended with a timestamp indicating when the log entry was made.
+#'          The log messages are appended to the existing content of the log file.
+#'
+#' @return None. This function is used for its side effect of logging messages to a file.
+#'
+#' @examples
+#' log_validation_issue("This is a validation issue.")
 log_validation_issue <- function(msg, log_file = "val_issues.txt") {
  cat(paste(Sys.time(), "-", msg, "\n"), file = log_file, append = TRUE)
 }
 
-# Logging function for general errors and warnings
+#' Logging Function for General Errors and Warnings
+#'
+#' @param msg Character string containing the message to be logged.
+#' @param log_file Character string specifying the file to which the log message should be written. Defaults to "error_log.txt".
+#'
+#' @details This function logs general error and warning messages to a specified log file.
+#'          Each log entry is prepended with a timestamp indicating when the log entry was made.
+#'          The log messages are appended to the existing content of the log file.
+#'
+#' @return None. This function is used for its side effect of logging messages to a file.
+#'
+#' @examples
+#' log_general_issue("This is a general warning or error message.")
 log_general_issue <- function(msg, log_file = "error_log.txt") {
  cat(paste(Sys.time(), "-", msg, "\n"), file = log_file, append = TRUE)
 }
 
-# Handler for general warnings and errors
+#' Handler for General Warnings and Errors
+#'
+#' @param cond A condition object representing the warning or error to be handled.
+#' @param type Character string specifying the type of condition: either "error" or "warning". Defaults to "error".
+#'
+#' @details This function handles general warnings and errors by logging the message using `log_general_issue`.
+#'          If the condition is an error, it stops execution by calling `stop` with the message.
+#'          If the condition is a warning, it re-issues the warning using `warning`.
+#'
+#' @return None. This function is used for its side effect of handling and logging conditions.
+#'
+#' @examples
+#' tryCatch(
+#'   { stop("An example error") },
+#'   error = function(e) { handle_general_condition(e, "error") }
+#' )
+#'
+#' tryCatch(
+#'   { warning("An example warning") },
+#'   warning = function(w) { handle_general_condition(w, "warning") }
+#' )
 handle_general_condition <- function(cond, type = "error") {
  msg <- paste(type, ":", conditionMessage(cond))
  log_general_issue(msg)
