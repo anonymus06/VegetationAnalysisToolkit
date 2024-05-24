@@ -1,7 +1,7 @@
 #'
 
 #' Comprehensive Data Check and Issue Logging Function
-
+#'
 #' @param df A list containing data frames to be checked.
 #' @param variable The name of the variable being checked, used to tailor the checks for specific data types.
 #'
@@ -9,21 +9,18 @@
 #'          1. It applies two sets of checks: `check_df1` for general data frame issues and `check_df2` for issues
 #'             in data frames excluding index data.
 #'          2. Issues are collected and aggregated across all data frames.
-#'          3. Identified issues are logged into a "data_check_issues.txt" file for further action.
-#'          4. The function also prints warnings in the R console for each data frame with issues, summarizing the problems found.
+#'          3. The function returns a list indicating whether the data passed the checks without issues and the collected validation warnings.
 #'
 #'          This process ensures a comprehensive review of the data, aiding in the identification and correction
 #'          of potential data quality issues before further analysis.
 #'
-#' @return Logical value indicating whether the data passed the checks without issues (TRUE) or if issues were found (FALSE).
-#'
-#' @note The use of verbose warnings and issue logging provides a dual approach to informing the user
-#'       of potential problems: immediate feedback via the console and a permanent record in a text file.
-#'       This comprehensive feedback mechanism ensures that data issues are not overlooked and can be
-#'       addressed in a systematic manner.
+#' @return A list containing:
+#'         - `is_valid`: Logical value indicating whether the data passed the checks without issues (TRUE) or if issues were found (FALSE).
+#'         - `validation_warnings`: A list of warnings encountered during validation.
 check_data <- function(df, variable) {
+
  issues <- list()  # Initialize an empty list to collect potential issues
- df_null <- df[sapply(df, function(x) !is.null(x) && ncol(x) != 2)]  # Data frames without index
+ df_null <- df[sapply(df, function(x) !is.null(x) && ncol(x) != 2)]  # Get df data frames without the index files
 
  # Perform checks with tryCatch
  issues_df1 <- lapply(names(df), function(name) {
@@ -71,7 +68,6 @@ check_data <- function(df, variable) {
    }
   }
  }
-
  if (length(issues_df2) > 0) {
   for (i in seq_along(issues_df2)) {
    df_issues <- issues_df2[[i]]
@@ -80,7 +76,6 @@ check_data <- function(df, variable) {
    }
   }
  }
-
  validation_warnings <- list()
  if (length(issues) > 0) {
   for (name in names(issues)) {
@@ -91,7 +86,8 @@ check_data <- function(df, variable) {
   }
  }
 
- return(list(is_valid = (length(issues) == 0), validation_warnings = validation_warnings))
+ return(list(is_valid = (length(issues) == 0),
+             validation_warnings = validation_warnings))
 }
 
 #' Data Frame Structure and Content Validation Function
