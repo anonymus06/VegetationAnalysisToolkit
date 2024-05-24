@@ -32,6 +32,27 @@ log_issues_to_file <- function(issues, filepath) {
   })
 }
 
+# Logging function for validation issues
+log_validation_issue <- function(msg, log_file = "val_issues.txt") {
+ cat(paste(Sys.time(), "-", msg, "\n"), file = log_file, append = TRUE)
+}
+
+# Logging function for general errors and warnings
+log_general_issue <- function(msg, log_file = "error_log.txt") {
+ cat(paste(Sys.time(), "-", msg, "\n"), file = log_file, append = TRUE)
+}
+
+# Handler for general warnings and errors
+handle_general_condition <- function(cond, type = "error") {
+ msg <- paste(type, ":", conditionMessage(cond))
+ log_general_issue(msg)
+ if (type == "error") {
+  stop(msg)
+ } else {
+  warning(msg)
+ }
+}
+
 #' Calculate and Print Feedback for Data Filtering
 
 #' @param all_data A data frame containing the original, unfiltered dataset.

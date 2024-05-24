@@ -22,60 +22,76 @@
 #'       This comprehensive feedback mechanism ensures that data issues are not overlooked and can be
 #'       addressed in a systematic manner.
 check_data <- function(df, variable) {
+ issues <- list()  # Initialize an empty list to collect potential issues
+ df_null <- df[sapply(df, function(x) !is.null(x) && ncol(x) != 2)]  # Data frames without index
 
-  # ---- initial setup ----
+ # Perform checks with tryCatch
+ issues_df1 <- lapply(names(df), function(name) {
+  tryCatch(
+   check_df1(df[[name]], name),
+   warning = function(w) {
+    msg <- paste("Warning in check_df1 for", name, ":", conditionMessage(w))
+    log_general_issue(msg)
+    warning(msg)
+    NULL
+   },
+   error = function(e) {
+    msg <- paste("Error in check_df1 for", name, ":", conditionMessage(e))
+    log_general_issue(msg)
+    message(msg)
+    NULL
+   }
+  )
+ }) %>% Filter(function(x) !is.null(x) && length(x) > 0, .)
 
-  issues <- list()  # Initialize an empty list to collect potential issues
-  df_NULL <- df[sapply(df, function(x) !is.null(x) && ncol(x) != 2)]  # Define a data file without the indexes!
+ issues_df2 <- lapply(names(df_null), function(name) {
+  tryCatch(
+   check_df2(df_null[[name]], name, variable),
+   warning = function(w) {
+    msg <- paste("Warning in check_df2 for", name, ":", conditionMessage(w))
+    log_general_issue(msg)
+    warning(msg)
+    NULL
+   },
+   error = function(e) {
+    msg <- paste("Error in check_df2 for", name, ":", conditionMessage(e))
+    log_general_issue(msg)
+    message(msg)
+    NULL
+   }
+  )
+ }) %>% Filter(function(x) !is.null(x) && length(x) > 0, .)
 
-  # ---- perform checks ----
-
-  # Iterates over the data frames to apply defined check functions, collecting any identified issues.
-  # Issues from general checks (`check_df1`) and checks excluding index data (`check_df2`) are aggregated.
-  issues_df1 <- lapply(names(df), function(name) check_df1(df[[name]], name)) %>%
-    Filter(function(x) !is.null(x) && length(x) > 0, .)
-  issues_df2 <- lapply(names(df_NULL), function(name) check_df2(df_NULL[[name]], name, variable)) %>%
-    Filter(function(x) !is.null(x) && length(x) > 0, .)
-
-  # Aggregate Issues and Log to File
-  # Compiles issues from both sets of checks into a master list and logs them for review.
-  if (length(issues_df1) > 0) {
-    for (i in seq_along(issues_df1)) {
-      # Now issues_df1[i] is expected to be a list of issues for a single data frame
-      df_issues <- issues_df1[[i]]
-      # Iterate over names within this sublist (each named entry corresponds to a specific issue)
-      for (name in names(df_issues)) {
-        # Append the issues from df_issues to the master issues list
-        issues[[name]] <- c(issues[[name]], df_issues[[name]])
-      }
-    }
+ # Aggregate Issues
+ if (length(issues_df1) > 0) {
+  for (i in seq_along(issues_df1)) {
+   df_issues <- issues_df1[[i]]
+   for (name in names(df_issues)) {
+    issues[[name]] <- c(issues[[name]], df_issues[[name]])
+   }
   }
-  if (length(issues_df2) > 0) {
-    # Iterate over each element in issues_df2
-    for (i in seq_along(issues_df2)) {
-      df_issues <- issues_df2[[i]]
-      for (name in names(df_issues)) {
-        issues[[name]] <- c(issues[[name]], df_issues[[name]])
-      }
-    }
-  }
-  # Log issues to file
-  log_issues_to_file(issues, "data_check_issues.txt")
+ }
 
-  # Display Warnings for Data Frames with Issues
-  # Generates warnings in the R console for each data frame with identified issues, providing immediate feedback.
-  if (length(issues) > 0) {
-    for (name in names(issues)) {
-     issue_details <- paste(issues[[name]], collapse="\n")
-     warning_message <- paste0("Issues in ", name, ":\n", issue_details)
-     warning(warning_message)
-    }
+ if (length(issues_df2) > 0) {
+  for (i in seq_along(issues_df2)) {
+   df_issues <- issues_df2[[i]]
+   for (name in names(df_issues)) {
+    issues[[name]] <- c(issues[[name]], df_issues[[name]])
+   }
   }
+ }
 
-  # Return Check Status
-  # Indicates whether the checks passed without issues (TRUE) or if any issues were identified (FALSE).
-  # It is maybe redundant (I do not use this logical value later)
-  return(length(issues) == 0)  # Return TRUE if no issues, FALSE otherwise
+ validation_warnings <- list()
+ if (length(issues) > 0) {
+  for (name in names(issues)) {
+   issue_details <- paste(issues[[name]], collapse = "\n")
+   warning_message <- paste0("Issues in ", name, ":\n", issue_details)
+   validation_warnings <- c(validation_warnings, warning_message)
+   #warning(warning_message)
+  }
+ }
+
+ return(list(is_valid = (length(issues) == 0), validation_warnings = validation_warnings))
 }
 
 #' Data Frame Structure and Content Validation Function
