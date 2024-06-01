@@ -166,7 +166,8 @@ process_NDVI <-
   # Optionally validate the data for integrity and structure
   if (validate) {
    validation_result <- withCallingHandlers({
-    check_data(all_data, variable)
+    check_data(all_data, data_type)
+    # check_data(all_data, variable)
    }, warning = collect_general_warning, error = function(e) {
     handle_general_condition(e, "error")
    })
@@ -180,10 +181,13 @@ process_NDVI <-
       length(validation_warnings),
       "warnings.\nCheck 'val_issues.txt' for details."
      )
-    log_validation_issue(paste(
-     "Detailed warnings:\n",
-     paste(validation_warnings, collapse = "\n")
-    ))
+    # log_validation_issue(paste(
+    #  "Detailed warnings:\n",
+    #  paste(validation_warnings, collapse = "\n")
+    # ))
+    # detailed_warnings <- paste("Detailed warnings:\n", paste(validation_warnings, collapse = "\n"))
+    # log_validation_issue(detailed_warnings)
+    log_validation_issue(validation_warnings)
     warning(summary_msg)
    } else {
     message("Validation completed without warnings.")

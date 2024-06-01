@@ -1,5 +1,71 @@
 #'
 
+clean_column_names <- function(col_names) {
+ sapply(col_names, function(name) {
+  name <-
+   gsub("[^[:alnum:]]", "", name)  # Remove non-alphanumeric characters
+  name <- gsub("nm", "", name)            # Remove the "nm" suffix
+  name
+ })
+}
+
+check_sequential_index <- function(df, verbose=FALSE) {
+ # Helper function to check if a sequence is sequential
+
+ # Identifying segments with "Sample" headers for separate sequentiality checks
+ split_indices <- which(df$Sample == "Sample")
+ # Append an additional index to include the last data segment
+ split_indices <- c(split_indices, nrow(df) + 1)
+
+ index0 <- 1
+ for (i in seq_along(split_indices)) {
+  index <- split_indices[i]
+  # Adjust the segment range to handle the last chunk correctly
+  if (i == length(split_indices)) {
+   seq_df <- df[index0:(nrow(df)),]
+  } else {
+   seq_df <- df[index0:(index - 1),]
+  }
+  index0 <- index + 1 # Prepare for the next segment
+
+  # Exclude "Sample" header rows and convert to numeric for sequentiality check
+  numeric_samples <- suppressWarnings(as.numeric(seq_df$Sample[seq_df$Sample != "Sample"]))
+
+  # Verify sequentiality within the segment
+  if (any(diff(numeric_samples) != 1)) {
+   if(verbose){ print(sprintf("Non-sequential values found in 'Sample' column within rows %d to %d.", index0, index - 1))}
+   return(FALSE)
+  }
+  if(verbose){ print(sprintf("Checked sequentiality up to row %d: OK", index - 1))}
+ }
+
+ return(TRUE)  # Return TRUE if all segments pass the sequentiality check
+}
+
+#Filtering out rows that might inadvertently contain column names as data
+filter_rows_not_in_columns <- function(df, required_columns) {
+ rows_to_keep <- apply(df, 1, function(row) !all(row %in% required_columns))
+ filtered_df <- df[rows_to_keep, ]
+ return(filtered_df)
+}
+
+process_dataframe <- function(df) {
+
+ # Check if the number of columns is 1 (= Chlorofile data) and split the columns if true
+ if (ncol(df) == 1) {
+  df <- splitColumns(df)
+ }
+
+ # Save an old copy for sequential index check
+ df_old <- df
+
+ # Filter out rows that match column names
+ df <- filter_rows_not_in_columns(df, names(df))
+
+ # Return the processed dataframe and its old copy
+ return(list(current_df = df, current_df_old = df_old))
+}
+
 #' Helper function to add identified issues to the list
 #'
 #' @param issues A list containing named vectors of issue messages.
@@ -27,7 +93,17 @@ add_issue <- function(issues, name, issue_message) {
 #' log_validation_issue("This is a validation issue.")
 log_validation_issue <- function(msg, log_file = "val_issues.txt") {
  timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
- cat(paste(timestamp, "-", msg, "\n"), file = log_file, append = TRUE)
+ con <- file(log_file, open = "a")
+ if (is.character(msg)) {
+  message <- paste(timestamp, "-", msg)
+  writeLines(message, con = con)
+ } else if (is.list(msg)) {
+  lapply(unlist(msg), function(m) {
+   message <- paste(timestamp, "-", gsub("\n", "\\n", m))
+   writeLines(message, con = con)
+  })
+ }
+ close(con)
 }
 
 #' Logging Function for General Errors and Warnings
