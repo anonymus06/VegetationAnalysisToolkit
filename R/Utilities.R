@@ -104,7 +104,7 @@ add_issue <- function(issues, name, issue_message) {
   return(issues)
 }
 
-with_error_handling <- function(action, env) {
+with_error_handling <- function(action, ...) {
  result <- action()
  if (is.null(result)) {
   return(invisible(NULL))
@@ -159,4 +159,14 @@ clean_column_names <- function(col_names) {
   name <- gsub("nm", "", name) # Remove the "nm" suffix
   name
  })
+}
+
+#' Define ANSI escape codes for colors
+red <- make_style("red")
+black <- make_style("black")
+
+#' Function to add messages to a list
+add_message <- function(env, message, type = "info") {
+ env$messages <- append(env$messages, list(list(message = message, type = type)))
+
 }

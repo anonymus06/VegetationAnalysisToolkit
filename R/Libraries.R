@@ -7,7 +7,7 @@ library(ggplot2)
 library(lubridate)
 library(readxl)
 library(plotly)
-
+library(crayon)
 
 
 utils::globalVariables(c("Code", "Filtered", "Total", "Removed", "Date", "Index", "Landuse", "CCI", "NDVI"))

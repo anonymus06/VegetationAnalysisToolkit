@@ -2,8 +2,12 @@
 
 
 safely_read_NDVI <- function(folder_path, env) {
+
+ # issues <- env$all_issues
+ # messages <- env$messages
+
  tryCatch({
-  read_NDVI(folder_path)
+  read_NDVI(folder_path, env)
  }, error = function(e) {
   handle_general_condition(e, "error", env)
   # summary_msg <- summarize_and_log_issues(env)
@@ -45,8 +49,12 @@ safely_map_NDVI <- function(all_data, env) {
 }
 
 safely_save_ndvi <- function(all_data, output, filename, lower_limit, upper_limit, env) {
+
+ # issues <- env$all_issues
+ # messages <- env$messages
+
  tryCatch({
-  save_ndvi(all_data, output, filename, lower_limit, upper_limit)
+  save_ndvi(all_data, output, filename, lower_limit, upper_limit, env)
  }, error = function(e) {
   handle_general_condition(e, "error", env)
   # summary_msg <- summarize_and_log_issues(env)
@@ -100,10 +108,13 @@ log_validation_issue <- function(msg, log_file = "val_issues.txt") {
 }
 
 # Log validation issues
-log_validation_issues <- function(validation_warnings) {
+log_validation_issues <- function(validation_warnings, env) {
  summary_msg <- paste("Input data validation completed with", length(validation_warnings), "warnings.\nCheck 'val_issues.txt' for details.")
  log_validation_issue(validation_warnings)
- warning(summary_msg)
+ # warning(summary_msg)
+ # messages <- add_message(messages, summary_msg, "info")
+ add_message(env, summary_msg, "info")
+
 }
 
 #' Logging Function for General Errors and Warnings
@@ -130,19 +141,22 @@ log_general_issue <- function(msg, log_file = "error_log.txt") {
 }
 
 # Perform validation on the data
-perform_validation <- function(df, data_type, data_frame_files, validation_warnings_env) {
+perform_validation <- function(df, data_type, data_frame_files, env) {
  validation_result <- withCallingHandlers({
   check_data(df, data_type, data_frame_files)
  }, warning = function(w) {
-  handle_general_condition(w, "warning", validation_warnings_env)
+  handle_general_condition(w, "warning", env)
  }, error = function(e) {
-  handle_general_condition(e, "error", validation_warnings_env)
+  handle_general_condition(e, "error", env)
  })
 
- if (length(validation_result$validation_warnings) > 0) {
-  log_validation_issues(validation_result$validation_warnings)
+ if (length(validation_result$issues) > 0) { ## validation_result$issues
+  log_validation_issues(validation_result$issues, env) ## validation_result$issues helyett $env?
  } else {
-  message("Validation completed without warnings.")
+  # message("Validation completed without warnings.")
+  # messages <- add_message(messages, "Validation of the data completed without any issues.", "success")
+  # add_message(env, "Validation of the data completed without any issues.", "success")
+
  }
 
  return(validation_result$is_valid)
@@ -151,18 +165,21 @@ perform_validation <- function(df, data_type, data_frame_files, validation_warni
 # Setup environment for general warnings
 setup_general_warnings_env <- function() {
  env <- new.env()
- env$all_warnings <- list()
+ env$all_issues <- list()
+ env$messages <- list()
  return(env)
 }
 
-summarize_and_log_issues <- function(env) {
- if (length(env$all_issues) > 0) {
-  summary_msg <- paste0("Processing completed with ", length(env$all_issues), " issues (errors/warnings).\nCheck 'error_log.txt' for details.")
-  # log_general_issue(paste0("Detailed issues:\n", paste(env$all_issues, collapse = "\n")))
-  message(summary_msg)
+summarize_and_log_issues <- function(env, validation_run = TRUE) {
+ if (validation_run) {
+  if (length(env$all_issues) > 0) {
+   summary_msg <- paste0("Processing completed with ", length(env$all_issues), " issues (errors/warnings).\nCheck 'error_log.txt' for details.")
+   add_message(env, summary_msg, "issues")
+  } else {
+   add_message(env, "Processing data validation completed without any issues.", "issues")
+  }
  } else {
-  message("Processing completed without any issues.")
-  # return("Processing completed without any issues.")
+  add_message(env, "Data validation was not run.", "issues")
  }
 }
 
@@ -206,7 +223,7 @@ log_issue <- function(file, issue) {
 #'
 #' @importFrom dplyr group_by summarise mutate left_join
 #' @importFrom utils capture.output
-calculate_and_print_feedback <- function(all_data, filtered_data, varname) {
+calculate_and_print_feedback <- function(all_data, filtered_data, varname, env) {
  # Summary feedback by Code
  feedback <- all_data %>%
   group_by(Code) %>%
@@ -221,7 +238,9 @@ calculate_and_print_feedback <- function(all_data, filtered_data, varname) {
   )
 
  # Notification about the availability of feedback in text files
- cat("For feedback on data filtering, please check the 'feedback.txt' for a summary by Code, and 'detailed_feedback.txt' for comprehensive details grouped by Date and Code!\n")
+ # cat("For feedback on data filtering, please check the 'feedback.txt' for a summary by Code, and 'detailed_feedback.txt' for comprehensive details grouped by Date and Code!\n")
+ # messages <- add_message(messages, "Data filtering feedback: Please check the 'feedback.txt' for a summary by Code, and 'detailed_feedback.txt' for comprehensive details grouped by Date and Code!", "info")
+ add_message(env, "Data filtering results are available in 'feedback.txt' (summary by Code) and 'detailed_feedback.txt' (details by Date and Code).", "info")
 
  # Save the feedback content to a text file
  feedback_content <- capture.output({
@@ -249,4 +268,25 @@ calculate_and_print_feedback <- function(all_data, filtered_data, varname) {
   print(feedback, n = Inf)
  })
  writeLines(feedback_content, paste0(varname, "_detailed_feedback.txt"))
+}
+
+print_collected_messages <- function(env, lower_limit, upper_limit, variable, device = "Your Device Name") {
+ # Configuration Section
+ cat(green("===== Configuration =====\n"))
+ cat(sprintf("Device: %s\n", device))
+ cat(sprintf("Selected variable: %s\n", variable))
+ cat(sprintf("Lower limit: %s\n", lower_limit))
+ cat(sprintf("Upper limit: %s\n", upper_limit))
+ cat(green("=========================\n"))
+
+ # Activity Log Section
+ cat(green("===== Activity Log =====\n"))
+ for (msg in env$messages) {
+  if (msg$type == "info") {
+   cat(black(" *", msg$message), "\n")
+  } else if (msg$type == "issues") {
+   cat(red(" *", msg$message), "\n")
+  }
+ }
+ cat(green("=========================\n"))
 }

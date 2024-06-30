@@ -18,7 +18,8 @@
 #'
 #' @importFrom openxlsx getSheetNames loadWorkbook read.xlsx
 #' @importFrom utils read.table
-read_NDVI <- function(folder_pathway, skip_rows = 4,
+read_NDVI <- function(folder_pathway, env,
+                      skip_rows = 4,
                       valid_patterns = c("plantpen_NDVI_\\d{6}\\.txt$", "index\\.xlsx$")) {
  # List all the files in the directory with their paths
  files <- list.files(folder_pathway, full.names = TRUE)
@@ -35,7 +36,7 @@ read_NDVI <- function(folder_pathway, skip_rows = 4,
 
   # Check if the file is a directory
   if (is_directory(file)) {
-   log_skipped_file(file, "folder")
+   log_skipped_file(file, "folder", env)
    return(NULL)
   }
 
@@ -55,12 +56,12 @@ read_NDVI <- function(folder_pathway, skip_rows = 4,
 
    # Skip temporary files (to avoid duplicates)
   } else if (startsWith(basename(file), "~$")) {
-   log_skipped_file(file, "temporary file")
+   log_skipped_file(file, "temporary file", env)
    return(NULL)
 
    # Log any other skipped files for user awareness
   } else {
-   log_skipped_file(file, "element")
+   log_skipped_file(file, "element", env)
    return(NULL)
   }
  }
@@ -160,8 +161,11 @@ read_Chlorophyll <- function(folder_pathway,
 #'
 #' @param file The file that was skipped.
 #' @param reason The reason why the file was skipped.
-log_skipped_file <- function(file, reason) {
- cat("Skipped", reason, "from reading:", file, "\n")
+log_skipped_file <- function(file, reason, env) {
+ # cat("Skipped", reason, "from reading:", file, "\n")
+ # messages <- add_message(messages, paste("Skipped", reason, "from reading:", file), "info")
+ add_message(env, paste("Skipped", reason, "from reading:", file), "info")
+
 }
 
 #' Check naming pattern

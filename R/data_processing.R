@@ -44,13 +44,16 @@
 #' @export
 process_NDVI <- function(folder_path, output, filename, lower_limit, upper_limit, variable, validate) {
  # Setup environments
- # env <- new.env()
- # env$all_issues <- list()
- validation_failed <- FALSE # todo- put unto env functiion
  env <- setup_general_warnings_env()
+ # issues <- env$all_issues
+ # messages <- env$messages
+
+ validation_failed <- FALSE # todo- put unto env functiion
+
 
  # Define actions as functions
  read_ndvi_action <- function() safely_read_NDVI(folder_path, env)
+ # read_ndvi_action <- function() safely_read_NDVI(folder_path, issues)
  filter_data_action <- function() safely_filter_data(loaded_data$all_data, env)
  map_ndvi_action <- function() safely_map_NDVI(all_data, env)
  # map_ndvi_action <- function() {
@@ -65,7 +68,14 @@ process_NDVI <- function(folder_path, output, filename, lower_limit, upper_limit
  #  )
  # }
 
+ # save_ndvi_action <- function() safely_save_ndvi(all_data, output, filename, lower_limit, upper_limit, issues, messages)
  save_ndvi_action <- function() safely_save_ndvi(all_data, output, filename, lower_limit, upper_limit, env)
+
+ # add_message(env, "Device: ", "info")
+ # add_message(env, paste0("Selected vairable: ", variable), "info")
+ # add_message(env, paste0("Lower limit: ", lower_limit), "info")
+ # add_message(env, paste0("Upper limit: ", upper_limit), "info")
+ # add_message(env, "", "info")
 
  # Execute actions with error handling
  loaded_data <- with_error_handling(read_ndvi_action, env)
@@ -73,6 +83,7 @@ process_NDVI <- function(folder_path, output, filename, lower_limit, upper_limit
 
  # Optionally validate the data for integrity and structure
  if (validate) {
+  # validation_failed <- !perform_validation(all_data, "NDVI", loaded_data$data_frame_files, issues, messages)
   validation_failed <- !perform_validation(all_data, "NDVI", loaded_data$data_frame_files, env)
 
  }
@@ -81,11 +92,14 @@ process_NDVI <- function(folder_path, output, filename, lower_limit, upper_limit
  if (!validation_failed) {
   all_data <- with_error_handling(map_ndvi_action, env)
   with_error_handling(save_ndvi_action, env)
-  summarize_and_log_issues(env)   # Summarize and log general warnings and errors
- } else{
-  summarize_and_log_issues(env)
-
  }
+
+ summarize_and_log_issues(env, validation_run = validate)   # Summarize and log general warnings and errors
+
+ # print(env$messages)
+ # Print all collected messages
+ # print_collected_messages(env)
+ print_collected_messages(env, lower_limit, upper_limit, variable, device = "Your Device Name")
 
 }
 
@@ -224,7 +238,7 @@ map_CCI <- function(data){
 #'         information about the filtered data.
 #'
 #' @importFrom openxlsx write.xlsx
-save_ndvi <- function(df, output, filename, lower_limit, upper_limit) {
+save_ndvi <- function(df, output, filename, lower_limit, upper_limit, env) {
  # Combine all provided NDVI data frames into one and create a filtered version!
  combined_df_all <- create_combined_ndvi(df)
  combined_df_filtered <- create_combined_ndvi(df, apply_ndvi_filter = TRUE, lower_limit = lower_limit, upper_limit = upper_limit) # Specify the range for acceptable NDVI values
@@ -233,7 +247,7 @@ save_ndvi <- function(df, output, filename, lower_limit, upper_limit) {
  # filtered <<- combined_df_filtered
 
  # Provide feedback on the amount of data filtered
- calculate_and_print_feedback(combined_df_all, combined_df_filtered, "ndvi")
+ calculate_and_print_feedback(combined_df_all, combined_df_filtered, "ndvi", env)
 
  # Define the filename for the raw data Excel file and save it
  output0 <- paste0(output, filename)
@@ -244,8 +258,12 @@ save_ndvi <- function(df, output, filename, lower_limit, upper_limit) {
  write.xlsx(combined_df_filtered, output0, rowNames = FALSE)
 
  # Print confirmation messages with details about the saved files and filtering
- cat("Data (filtered and raw) saved to", output, "\n")
- cat("In filtered data values outside of bounds:", lower_limit, "and", upper_limit, "[NDVI] were discarded!\n")
+ # cat("Data (filtered and raw) saved to", output, "\n")
+ # cat("In filtered data values outside of bounds:", lower_limit, "and", upper_limit, "[NDVI] were discarded!\n")
+ # messages <- add_message(messages, paste("Data (filtered and raw) saved to", output_dir), "info")
+ # messages <- add_message(messages, paste("In filtered data values outside of bounds:", lower_limit, "and", upper_limit, "[NDVI] were discarded!"), "info")
+ add_message(env, paste("Data (filtered and raw) saved to:", output_dir), "info")
+ add_message(env, paste("In filtered data values outside of bounds:", lower_limit, "and", upper_limit, "were discarded!"), "info")
 }
 
 #' Save CCI Data to Excel Files
