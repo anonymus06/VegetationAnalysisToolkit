@@ -59,8 +59,12 @@ check_data <- function(df, data_type, data_frame_files) {
  issues <- list() # Initialize an empty list to collect potential issues
  #non_index_dfs <- df[sapply(df, function(x) !is.null(x) && ncol(x) != 2)]  # Get df data frames without the index files
 
- index_files <- sapply(names(df), is_index_file, data_frame_files)
+ index_files <- sapply(data_frame_files, is_index_file)
+ # non_index_dfs <- names(df)[!index_files]
  non_index_dfs <- df[!index_files]
+
+ # index_files <- sapply(names(df), is_index_file, data_frame_files)
+ # non_index_dfs <- df[!index_files]
 
  result <- list(is_valid = TRUE, validation_warnings = list())
 
@@ -91,7 +95,7 @@ perform_non_index_checks <- function(df, name, variable, data_type, data_frame_f
  file_name <- data_frame_files[[name]]
 
  # Process the DataFrame
- result <- process_dataframe(as.data.frame(current_df)) # as.data.frame redundant?
+ result <- process_dataframe(as.data.frame(current_df)) # as.data.frame redundant? # todo: ncol(df) == 1 -> chlorofily -> more robust solution, like data_type variable use to avoid errors when it wants to split a column when it is actually is a bad ndvi file
  current_df <- result$current_df
  current_df_old <- result$current_df_old
 
@@ -109,7 +113,7 @@ perform_non_index_checks <- function(df, name, variable, data_type, data_frame_f
  return(local_issues)
 }
 
-perform_global_checks <- function(df, name, data_columns, index_columns, data_types, index_types, data_frame_files, local_issues){
+perform_global_checks <- function(df, name, data_columns, index_columns, data_type, data_types, index_types, data_frame_files, local_issues){
 
  current_df <- df[[name]]
 
@@ -125,7 +129,7 @@ perform_global_checks <- function(df, name, data_columns, index_columns, data_ty
   local_issues
  )
 
- local_issues <- check_column_names(current_df, name, data_columns, index_columns, file_name, local_issues)
+ local_issues <- check_column_names(current_df, name, data_type, data_columns, index_columns, file_name, local_issues)
  local_issues <- check_data_types(current_df, name, data_types, index_types, file_name, local_issues)
  local_issues <- check_missing_values(current_df, name, file_name, local_issues)
  local_issues <- check_duplicate_rows(current_df, name, file_name, local_issues)
@@ -159,7 +163,7 @@ perform_all_checks <- function(df, non_index_dfs, data_columns, index_columns, d
 
  # Structure and Data Type Checks
  structure_issues <- lapply(names(df), function(name) {
-  perform_global_checks(df, name, data_columns, index_columns, data_types, index_types, data_frame_files, list())
+  perform_global_checks(df, name, data_columns, index_columns, data_type, data_types, index_types, data_frame_files, list())
  })
 
  # Flatten the list of issues
@@ -171,7 +175,8 @@ perform_all_checks <- function(df, non_index_dfs, data_columns, index_columns, d
 
  # Content Consistency and Integrity Checks
  content_issues <- lapply(names(non_index_dfs), function(name) {
-  perform_non_index_checks(non_index_dfs, name, variable, data_type, data_frame_files, list())
+  # perform_non_index_checks(non_index_dfs, name, variable, data_type, data_frame_files, list())
+  perform_non_index_checks(non_index_dfs, name, variable, data_type, data_frame_files, local_issues)
  })
 
  # Flatten the list of issues
@@ -195,13 +200,13 @@ check_data_existence <-
           local_issues) {
 
   # First, check if the data frame itself is NULL
-  if (is.null(current_df)) {
-   local_issues <-
-    add_issue(local_issues,
-              name,
-              paste0("The data frame '", name, "' does not exist or is NULL. Source file: '", file_name, "'"))
-   return(local_issues)  # Return the list of issues even when exiting early
-  }
+  # if (is.null(current_df)) {
+  #  local_issues <-
+  #   add_issue(local_issues,
+  #             name,
+  #             paste0("The data frame '", name, "' does not exist or is NULL. Source file: '", file_name, "'"))
+  #  return(local_issues)  # Return the list of issues even when exiting early
+  # }
 
   # Check if the data frame is empty
   if (nrow(current_df) == 0) {
@@ -241,42 +246,46 @@ check_data_existence <-
 
 check_column_names <-
  function(current_df,
-         name,
-         data_columns,
-         index_columns,
-         file_name,
-         local_issues) {
+          name,
+          data_type, # todo: TÖBBI HELYEN IS HOZZÁÍRNI H ÚJ VARIABLE HERE!
+          data_columns,
+          index_columns,
+          file_name,
+          local_issues) {
 
- mapped_names <- clean_column_names(names(current_df))
+  mapped_names <- clean_column_names(names(current_df))
+  # cat(mapped_names)
 
- # Define the new expected columns string if data_columns starts with "index"
- if (data_columns[1] == "index") {
-  expected_data_columns <- c("index", "time", "id", "760 [nm]", "635 [nm]", "NDVI")
- } else {
-  expected_data_columns <- data_columns
- }
+  # Define the new expected columns string if data_columns starts with "index"
+  if (data_type == "NDVI") {
+   expected_data_columns <- c("index", "time", "id", "760 [nm]", "635 [nm]", "NDVI")
+   expected_index_columns <- c("index", "description")
+  } else if (data_type == "Chlorofil"){ #todo: Chlorofil - jól írtam?
+   expected_data_columns <- c("Sample") # todo: befejezni a colnames-t!
+   expected_index_columns <- c("index", "Position") # todo: description legyen v Position?
+  }
 
- # Check against the first set of expected columns
- if (all(data_columns %in% mapped_names)) {
-  # If the data columns match, no issue is added
- } else if (all(index_columns %in% mapped_names)) {
-  # If the index columns match, no issue is added
- } else {
-  # If neither set of columns match, add an issue
-  local_issues <- add_issue(
-   local_issues,
-   name,
-   paste0(
-    "Your data frame '", name, "' does not match the expected column names! ",
-    "Detected columns: '", paste0(mapped_names, collapse = ", "), "'. ",
-    "Expected columns for data file: '", paste0(expected_data_columns, collapse = ", "), "'. ",
-    "Expected columns for Index file: '", paste0(index_columns, collapse = ", "), "'. Source file: '", file_name, "'"
+  # Check against the first set of expected columns
+  if (all(data_columns %in% mapped_names)) {
+   # If the data columns match, no issue is added
+  } else if (all(index_columns %in% mapped_names)) {
+   # If the index columns match, no issue is added
+  } else {
+   # If neither set of columns match, add an issue
+   local_issues <- add_issue(
+    local_issues,
+    name,
+    paste0(
+     "Your data frame '", name, "' does not match the expected column names! ",
+     # "Detected columns: '", paste0(mapped_names, collapse = ", "), "'. ", # it can be misleading for the user as it gives X760, X635 for the normally formatted 760 [nm], 635 [nm] colnames, so for better understanding, i leave it out!
+     "Expected columns for data file: '", paste0(expected_data_columns, collapse = ", "), "'. ",
+     "Expected columns for Index file: '", paste0(index_columns, collapse = ", "), "'. Source file: '", file_name, "'"
+    )
    )
-  )
 
+  }
+  return(local_issues)
  }
- return(local_issues)
-}
 
 check_data_types <- function(current_df, name, data_types, index_types, file_name, local_issues) {
  actual_types <- sapply(current_df, class) %>% unname()
@@ -400,8 +409,8 @@ check_datetime_format <- function(current_df, name, file_name, local_issues) {
    add_issue(
     local_issues,
     name,
-    "Some entries in the Time/Date column have an incorrect format. Expected formats: 'HH:MM:SS DD.MM.YYYY' [NDVI] or 'HH:MM:SS MM/DD/YYYY' [Chlorophyl]. Source file: '", file_name, "'"
-   )
+    paste0("Some entries in the Time/Date column have an incorrect format. Expected formats: 'HH:MM:SS DD.MM.YYYY' [NDVI] or 'HH:MM:SS MM/DD/YYYY' [Chlorophyl]. Source file: '", file_name, "'"
+   ))
  }
  return(local_issues)
 
@@ -437,7 +446,7 @@ check_missing_values <- function(current_df, name, file_name, local_issues) {
   local_issues <-
    add_issue(local_issues,
              name,
-             "Missing values found in one or more columns. Source file: '", file_name, "'")
+             paste0("Missing values found in one or more columns. Source file: '", file_name, "'"))
  }
  return(local_issues)
 
@@ -446,7 +455,7 @@ check_missing_values <- function(current_df, name, file_name, local_issues) {
 check_duplicate_rows <- function(current_df, name, file_name, local_issues) {
  if (any(duplicated(current_df))) {
   local_issues <-
-   add_issue(local_issues, name, "Duplicate rows found in the data. Source file: '", file_name, "'")
+   add_issue(local_issues, name, paste0("Duplicate rows found in the data. Source file: '", file_name, "'"))
  }
  return(local_issues)
 

@@ -25,9 +25,10 @@ mapply(
 #' @param data_frame_files A list mapping data frame names to file paths.
 #'
 #' @return TRUE if the data frame is from an index file, FALSE otherwise.
-is_index_file <- function(df_name, data_frame_files) {
-  return(grepl("index.xlsx", data_frame_files[[df_name]], ignore.case = TRUE))
+is_index_file <- function(file_path) { # todo: variable - documentum javit , clean column-nál, filter_data-nál, handle_text_file-nál is! /meg mindenhol ellenoriz
+ grepl("index.xlsx", file_path, ignore.case = TRUE)
 }
+
 
 #' Helper function to check if a sequence is sequential
 #'

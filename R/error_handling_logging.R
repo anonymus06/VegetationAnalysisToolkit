@@ -109,11 +109,11 @@ log_validation_issue <- function(msg, log_file = "val_issues.txt") {
 
 # Log validation issues
 log_validation_issues <- function(validation_warnings, env) {
- summary_msg <- paste("Input data validation completed with", length(validation_warnings), "warnings.\nCheck 'val_issues.txt' for details.")
+ summary_msg <- paste("Input data validation completed with", length(validation_warnings), "warnings. Check 'val_issues.txt' for details. The script has been aborted.")
  log_validation_issue(validation_warnings)
  # warning(summary_msg)
  # messages <- add_message(messages, summary_msg, "info")
- add_message(env, summary_msg, "info")
+ add_message(env, summary_msg, "issues")
 
 }
 
@@ -150,12 +150,14 @@ perform_validation <- function(df, data_type, data_frame_files, env) {
   handle_general_condition(e, "error", env)
  })
 
- if (length(validation_result$issues) > 0) { ## validation_result$issues
-  log_validation_issues(validation_result$issues, env) ## validation_result$issues helyett $env?
+ if (length(validation_result$validation_warnings) > 0) { ## validation_result$issues
+  # log_validation_issues(validation_result$issues, env) ## validation_result$issues helyett $env?
+  log_validation_issues(validation_result$validation_warnings, env)
  } else {
+  # print(validation_result)
   # message("Validation completed without warnings.")
   # messages <- add_message(messages, "Validation of the data completed without any issues.", "success")
-  # add_message(env, "Validation of the data completed without any issues.", "success")
+  add_message(env, "Validation completed without any known issues. Note: Not all potential issues are checked.", "issues")
 
  }
 
@@ -170,16 +172,18 @@ setup_general_warnings_env <- function() {
  return(env)
 }
 
-summarize_and_log_issues <- function(env, validation_run = TRUE) {
- if (validation_run) {
-  if (length(env$all_issues) > 0) {
-   summary_msg <- paste0("Processing completed with ", length(env$all_issues), " issues (errors/warnings).\nCheck 'error_log.txt' for details.")
-   add_message(env, summary_msg, "issues")
-  } else {
-   add_message(env, "Processing data validation completed without any issues.", "issues")
-  }
+summarize_and_log_issues <- function(env, validation_run = TRUE) { # todo: summarize_and_log_issues name change - 'log issues' part is incorrect - we log issues for the console not for the error log file!
+
+ if (length(env$all_issues) > 0) {
+  summary_msg <- paste0("Processing completed with ", length(env$all_issues), " issues (errors/warnings). Check 'error_log.txt' for details. Processing is terminated.")
+  add_message(env, summary_msg, "issues")
  } else {
+  # add_message(env, "Processing completed without any issues. No problems detected in executed steps.", "issues")
+ }
+
+ if (!validation_run) {
   add_message(env, "Data validation was not run.", "issues")
+
  }
 }
 
@@ -270,13 +274,14 @@ calculate_and_print_feedback <- function(all_data, filtered_data, varname, env) 
  writeLines(feedback_content, paste0(varname, "_detailed_feedback.txt"))
 }
 
-print_collected_messages <- function(env, lower_limit, upper_limit, variable, device = "Your Device Name") {
+print_collected_messages <- function(env, lower_limit, upper_limit, variable, device = "Your Device Name", validate) {
  # Configuration Section
  cat(green("===== Configuration =====\n"))
  cat(sprintf("Device: %s\n", device))
  cat(sprintf("Selected variable: %s\n", variable))
  cat(sprintf("Lower limit: %s\n", lower_limit))
  cat(sprintf("Upper limit: %s\n", upper_limit))
+ cat(sprintf("Data validation: %s\n", ifelse(validate, "ON", "OFF")))
  cat(green("=========================\n"))
 
  # Activity Log Section

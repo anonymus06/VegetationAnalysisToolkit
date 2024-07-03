@@ -52,7 +52,7 @@ read_NDVI <- function(folder_pathway, env,
 
    # Handle text files (NDVI data files)
   } else if (file_extension == "txt" && !startsWith(basename(file), "~$")) {
-   return(handle_text_file(file, skip_rows))
+   return(handle_text_file(file, skip_rows, env))
 
    # Skip temporary files (to avoid duplicates)
   } else if (startsWith(basename(file), "~$")) {
@@ -203,12 +203,50 @@ handle_excel_file <- function(file) {
 #' @return A list containing:
 #'         - `data`: A list with the data frame of the text file.
 #'         - `files`: A list mapping the file name to the file path.
-handle_text_file <- function(file, skip_rows = 4) {
- sheet_data <- read.table(file, header = TRUE, sep = "\t", skip = skip_rows)
+# handle_text_file <- function(file, skip_rows = 4) {
+#  sheet_data <- read.table(file, header = TRUE, sep = "\t", skip = skip_rows)
+#  data <- list()
+#  files <- list()
+#  data[[basename(file)]] <- sheet_data
+#  files[[basename(file)]] <- file
+#  list(data = data, files = files)
+# }
+handle_text_file <- function(file, skip_rows = 4, env) {
+ # cat(sprintf("Attempting to read text file: %s with skip_rows = %d\n", file, skip_rows))
+
+ # Initialize lists to store data and file mappings
  data <- list()
  files <- list()
- data[[basename(file)]] <- sheet_data
- files[[basename(file)]] <- file
+
+ tryCatch({
+  sheet_data <- read.table(file, header = TRUE, sep = "\t", skip = 4)
+
+  #todo: incroporate with error log! , állítsa is le a futást!
+  # befejez a többi todo-t amit a fuggvenyekbe irtam s felulirtam az elozoket de nem mentettem le
+  # if (is.null(sheet_data)) {
+  #  # stop("The data frame does not exist or is NULL.")
+  # add_message(env, "The data frame does not exist or is NULL.", "issues")
+  # return(NULL)
+  # local_issues <-
+  #  add_issue(local_issues,
+  #            name,
+  #            paste0("The data frame '", name, "' does not exist or is NULL. Source file: '", file_name, "'"))
+  # }
+
+  data[[basename(file)]] <- sheet_data
+  files[[basename(file)]] <- file
+  # cat(sprintf("Successfully read file: %s\n", file))
+
+ }, error = function(e) {
+  # cat(sprintf("Error reading file: %s - %s\n", file, e$message))
+  data[[basename(file)]] <- NULL
+  files[[basename(file)]] <- file
+  if (is.null(data[[basename(file)]])) {
+   add_message(env, "The data frame does not exist or is NULL.", "issues")
+   # stop("The data frame does not exist or is NULL.")
+  }
+ })
+
  list(data = data, files = files)
 }
 

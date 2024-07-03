@@ -99,7 +99,7 @@ process_NDVI <- function(folder_path, output, filename, lower_limit, upper_limit
  # print(env$messages)
  # Print all collected messages
  # print_collected_messages(env)
- print_collected_messages(env, lower_limit, upper_limit, variable, device = "Your Device Name")
+ print_collected_messages(env, lower_limit, upper_limit, variable, device = "Your Device Name", validate)
 
 }
 
@@ -118,12 +118,16 @@ process_NDVI <- function(folder_path, output, filename, lower_limit, upper_limit
 #' If these assumption does not hold, the function may not perform as expected.
 filter_data <- function(df){
 
-
-
  # Identify the position of the NDVI column in the last data frame of the list
  ndvi_col_index <- which(names(df[[length(df)]]) == "NDVI")
+ # Check if NDVI column is found
+ if (length(ndvi_col_index) == 0) { # todo: maybe it could also work with this method
+  # stop("NDVI column not found in the dataset") # todo: with other method! - to log file with message
+  return(NULL)
+ }
+ # ndvi_col_index <- 6 # if coloumns are deleted, position can change!
 
- # Update the last data frame in the list to retain only columns up to and including the NDVI column
+ # Update the last data frame in the list to retain only columns up to and including the NDVI column #todo: more reliable method - the last one ll always be the data file because of how it reads it, but still!
  # This operation ensures that all columns following the NDVI column are removed
  df[[length(df)]] <- df[[length(df)]][, 1:ndvi_col_index]
 
