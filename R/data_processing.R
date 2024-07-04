@@ -84,7 +84,7 @@ process_NDVI <- function(folder_path, output, filename, lower_limit, upper_limit
  # Optionally validate the data for integrity and structure
  if (validate) {
   # validation_failed <- !perform_validation(all_data, "NDVI", loaded_data$data_frame_files, issues, messages)
-  validation_failed <- !perform_validation(all_data, "NDVI", loaded_data$data_frame_files, env)
+  validation_failed <- !perform_validation(all_data, "NDVI", loaded_data$data_frame_files, variable, env)
 
  }
 

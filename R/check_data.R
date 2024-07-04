@@ -18,7 +18,7 @@
 #' @return A list containing:
 #'         - `is_valid`: Logical value indicating whether the data passed the checks without issues (TRUE) or if issues were found (FALSE).
 #'         - `validation_warnings`: A list of warnings encountered during validation.
-check_data <- function(df, data_type, data_frame_files) {
+check_data <- function(df, data_type, data_frame_files, variable) {
 
  # ---- initial part of procedure ----
 
@@ -35,7 +35,7 @@ check_data <- function(df, data_type, data_frame_files) {
      "integer", # integer
      "numeric") # numeric
   index_types <- c("numeric", "character")
-  variable <- "NDVI"
+  # variable <- "NDVI"
 
  } else if (data_type == "Chlorophyll") {
   data_columns <-
@@ -50,7 +50,7 @@ check_data <- function(df, data_type, data_frame_files) {
   index_columns <- c("index", "Position")
   data_types <- c("character")
   index_types <- c("numeric", "character")
-  variable <- "CCI"
+  # variable <- "CCI"
 
  } else {
   stop("Unknown data type in 'check_data'")

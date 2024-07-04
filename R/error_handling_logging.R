@@ -141,9 +141,9 @@ log_general_issue <- function(msg, log_file = "error_log.txt") {
 }
 
 # Perform validation on the data
-perform_validation <- function(df, data_type, data_frame_files, env) {
+perform_validation <- function(df, data_type, data_frame_files, variable, env) {
  validation_result <- withCallingHandlers({
-  check_data(df, data_type, data_frame_files)
+  check_data(df, data_type, data_frame_files, variable)
  }, warning = function(w) {
   handle_general_condition(w, "warning", env)
  }, error = function(e) {
