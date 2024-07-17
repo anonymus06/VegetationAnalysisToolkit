@@ -516,38 +516,6 @@ convertData <- function(df) {
  return(df)
 }
 
-#' Splits the "Code" column into three new columns based on specific patterns.
-
-#' @param df A data frame with a column named "Code" that contains strings to be split.
-#'
-#' @return A data frame with three new columns ("Position", "Landuse", "InterRow") extracted from the "Code" column.
-#'         If a pattern does not match exactly, the resulting column value will be NA.
-#'
-#' @details This function is designed to accurately parse and categorize components of a code string
-#'          into distinct categories based on predefined patterns. The function prioritizes exact matches
-#'          to ensure that only fully matching codes are extracted. In cases where a code component is
-#'          expected but not present in the exact form (e.g., "GERGELY1" should not match any pattern),
-#'          the function will not extract a partial match, aiming to maintain the integrity of the categorized data.
-#'
-#' @importFrom stringr str_extract
-# splitCodeColumn <- function(df) {
-#
-#  df <- df %>%
-#   mutate(
-#    Position = str_extract(Code, "F|A|HP|CS|U|2|3|4"),
-#    Landuse = str_extract(Code, "CSU|CSR|CST|SZ|E|R|Ts1|T1|Cc1|Ts4|T2_new"),
-#    InterRow = ifelse(
-#     grepl("CSU|CST|CSR", Code) & !grepl("SK", Code),
-#     "S",
-#     str_extract(Code, "SK")
-#    )
-#    # Conditional columns!
-#    # e.g.: CSUFSK -> InterRow: SK | CSUF -> InterRow: S | CSUFS -> InterRow: S | CSUF{whatever} -> InterRow: S
-#    # <=> in the interrow column, everything is coded as "S" (=Sor) what is not wrote as "SK" (=Sorkoz) in the excel sheets code columns!
-#   )
-#
-#  return(df)
-# }
 #' Split Code Column into Position, Landuse, and InterRow Columns
 #'
 #' @description Splits the "Code" column into three new columns based on user-specified patterns.
@@ -563,6 +531,7 @@ convertData <- function(df) {
 #'
 #' @importFrom dplyr %>% mutate if_else rowwise ungroup
 #' @importFrom purrr map_chr
+#' @importFrom stringr str_extract
 splitCodeColumn <- function(df, config) {
 
  positionPattern <- config$positionPattern
