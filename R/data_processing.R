@@ -561,7 +561,7 @@ convertData <- function(df) {
 #'          by enabling the user to define their own regex patterns for each category. This adaptability
 #'          ensures that the function can be used with a variety of code formats and conventions.
 #'
-#' @importFrom dplyr %>%, mutate, if_else, rowwise, ungroup
+#' @importFrom dplyr %>% mutate if_else rowwise ungroup
 #' @importFrom purrr map_chr
 splitCodeColumn <- function(df, config) {
 
@@ -569,7 +569,6 @@ splitCodeColumn <- function(df, config) {
  landusePattern <- config$landusePattern
  interRowConditions <- config$interRowConditions
 
- # todo: ha NA -> uziben kiír h amit beírtunk a config.txt-be annak nincs párja itt!
  df <- df %>%
   mutate(
    Position = if_else(str_detect(Code, landusePattern), str_extract(Code, positionPattern), NA_character_),
