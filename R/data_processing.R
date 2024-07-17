@@ -171,11 +171,15 @@ map_NDVI <- function(data, data_name, last_df){
 
  # Further processing...
 
+ # Read the configuration from the file
+ config <- readSimpleConfig("config.txt")
+
  new_names <- c("index", "NDVI", "Code", "Date") # Define the new column names
  filtered_data <- addDateColumn(filtered_data, date_str) %>% # We add date columns to work!
   renameColumnsByPosition(new_names) %>%  # Rename the selected columns!
   convertData %>% # Change data type: [Sample NDVI Code Date -> numeric-numeric-character-date]
-  splitCodeColumn # Apply splitCodeColumn to get Landuse, Position and InterRow columns!
+  # splitCodeColumn # Apply splitCodeColumn to get Landuse, Position and InterRow columns!
+  splitCodeColumn(config)
 
  return(filtered_data)
 }
@@ -526,21 +530,71 @@ convertData <- function(df) {
 #'          the function will not extract a partial match, aiming to maintain the integrity of the categorized data.
 #'
 #' @importFrom stringr str_extract
-splitCodeColumn <- function(df) {
+# splitCodeColumn <- function(df) {
+#
+#  df <- df %>%
+#   mutate(
+#    Position = str_extract(Code, "F|A|HP|CS|U|2|3|4"),
+#    Landuse = str_extract(Code, "CSU|CSR|CST|SZ|E|R|Ts1|T1|Cc1|Ts4|T2_new"),
+#    InterRow = ifelse(
+#     grepl("CSU|CST|CSR", Code) & !grepl("SK", Code),
+#     "S",
+#     str_extract(Code, "SK")
+#    )
+#    # Conditional columns!
+#    # e.g.: CSUFSK -> InterRow: SK | CSUF -> InterRow: S | CSUFS -> InterRow: S | CSUF{whatever} -> InterRow: S
+#    # <=> in the interrow column, everything is coded as "S" (=Sor) what is not wrote as "SK" (=Sorkoz) in the excel sheets code columns!
+#   )
+#
+#  return(df)
+# }
+#' Split Code Column into Position, Landuse, and InterRow Columns
+#'
+#' @description Splits the "Code" column into three new columns based on user-specified patterns.
+#'
+#' @param df A data frame with a column named "Code" that contains strings to be split.
+#' @param config A list containing the regex patterns for extracting the "Position", "Landuse", and "InterRow" columns.
+#'
+#' @return A data frame with three new columns ("Position", "Landuse", "InterRow") extracted from the "Code" column based on the provided patterns.
+#'
+#' @details This function allows for flexible parsing of code strings into distinct categories
+#'          by enabling the user to define their own regex patterns for each category. This adaptability
+#'          ensures that the function can be used with a variety of code formats and conventions.
+#'
+#' @importFrom dplyr %>%, mutate, if_else, rowwise, ungroup
+#' @importFrom purrr map_chr
+splitCodeColumn <- function(df, config) {
 
+ positionPattern <- config$positionPattern
+ landusePattern <- config$landusePattern
+ interRowConditions <- config$interRowConditions
+
+ # todo: ha NA -> uziben kiír h amit beírtunk a config.txt-be annak nincs párja itt!
  df <- df %>%
   mutate(
-   Position = str_extract(Code, "F|A|HP|CS|U|2|3|4"),
-   Landuse = str_extract(Code, "CSU|CSR|CST|SZ|E|R|Ts1|T1|Cc1|Ts4|T2_new"),
-   InterRow = ifelse(
-    grepl("CSU|CST|CSR", Code) & !grepl("SK", Code),
-    "S",
-    str_extract(Code, "SK")
-   )
-   # Conditional columns!
-   # e.g.: CSUFSK -> InterRow: SK | CSUF -> InterRow: S | CSUFS -> InterRow: S | CSUF{whatever} -> InterRow: S
-   # <=> in the interrow column, everything is coded as "S" (=Sor) what is not wrote as "SK" (=Sorkoz) in the excel sheets code columns!
-  )
+   Position = if_else(str_detect(Code, landusePattern), str_extract(Code, positionPattern), NA_character_),
+   Landuse = if_else(str_detect(Code, positionPattern), str_extract(Code, landusePattern), NA_character_)
+  ) %>%
+  rowwise() %>%
+  mutate(
+   InterRow = if (!is.null(interRowConditions)) {
+    map_chr(Code, function(code) {
+     for (condition in interRowConditions) {
+      combined_pattern <- paste0("\\b", condition$pattern, Position, "\\b")
+      if (grepl(combined_pattern, code) && !grepl(condition$extract, code)) {
+       return(condition$default)
+      } else if (grepl(condition$extract, code)) {
+       return(str_extract(code, condition$extract))
+      }
+     }
+     return(NA_character_)  # Return NA if none of the conditions match
+    }) %>% first()
+   } else {
+    NA_character_
+   }
+  ) %>%
+  ungroup()
+
 
  return(df)
 }

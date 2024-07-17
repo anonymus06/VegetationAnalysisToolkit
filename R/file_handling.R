@@ -266,3 +266,24 @@ handle_CSV_file <- function(file) {
  list(data = data, files = files)
 }
 
+# Function to read the simple configuration file
+readSimpleConfig <- function(file) {
+ lines <- readLines(file)
+ config <- list(
+  positionPattern = lines[1],
+  landusePattern = lines[2]
+ )
+
+ if (tolower(lines[3]) != "na") {
+  landuse_patterns <- unlist(strsplit(lines[3], "|", fixed = TRUE))
+  interRowConditions <- lapply(landuse_patterns, function(pat) {
+   # list(pattern = paste0("\\b", pat, "\\b"), default = lines[4], extract = lines[5])
+   list(pattern = pat, default = lines[4], extract = lines[5])
+  })
+  config$interRowConditions <- interRowConditions
+ } else {
+  config$interRowConditions <- NULL
+ }
+
+ return(config)
+}
