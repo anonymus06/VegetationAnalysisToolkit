@@ -145,7 +145,7 @@ filter_data <- function(df){
 #' @importFrom dplyr %>% filter
 #'
 #' @return A transformed data frame.
-map_NDVI <- function(data, data_name, last_df){
+map_NDVI <- function(data, data_name, last_df, env){
  # Assuming txt_elements is the last dataframe being processed
  txt_elements <- data
 
@@ -178,8 +178,7 @@ map_NDVI <- function(data, data_name, last_df){
  filtered_data <- addDateColumn(filtered_data, date_str) %>% # We add date columns to work!
   renameColumnsByPosition(new_names) %>%  # Rename the selected columns!
   convertData %>% # Change data type: [Sample NDVI Code Date -> numeric-numeric-character-date]
-  # splitCodeColumn # Apply splitCodeColumn to get Landuse, Position and InterRow columns!
-  splitCodeColumn(config)
+  splitCodeColumn(config, env) # Apply splitCodeColumn to get Landuse, Position and InterRow columns!
 
  return(filtered_data)
 }
@@ -532,28 +531,57 @@ convertData <- function(df) {
 #' @importFrom dplyr %>% mutate if_else rowwise ungroup
 #' @importFrom purrr map_chr
 #' @importFrom stringr str_extract
-splitCodeColumn <- function(df, config) {
+splitCodeColumn <- function(df, config, env) {
+ # print("Original DataFrame:")
+ # print(head(df))
 
  positionPattern <- config$positionPattern
  landusePattern <- config$landusePattern
  interRowConditions <- config$interRowConditions
 
+ invalid_codes <- character()  # Initialize a local vector to store invalid codes
+
  df <- df %>%
+  rowwise() %>%
   mutate(
-   Position = if_else(str_detect(Code, landusePattern), str_extract(Code, positionPattern), NA_character_),
-   Landuse = if_else(str_detect(Code, positionPattern), str_extract(Code, landusePattern), NA_character_)
+   ValidCode = is_valid_code(Code, positionPattern, landusePattern, interRowConditions),
+   Position = if (ValidCode) str_extract(Code, positionPattern) else NA_character_,
+   Landuse = if (ValidCode) str_extract(Code, landusePattern) else NA_character_
   ) %>%
+  ungroup() %>%
+  select(-ValidCode) %>% #todo: lentebb ezt hasznalni az if-ben?
   rowwise() %>%
   mutate(
    InterRow = if (!is.null(interRowConditions)) {
     map_chr(Code, function(code) {
+     if (!is_valid_code(code, positionPattern, landusePattern, interRowConditions)) {
+      # if (!ValidCode) {
+
+      invalid_codes <<- unique(c(invalid_codes, code))
+      # message(paste("Invalid code detected:", code)) # todo: global helyett más megoldás / sheet is ott legyen, h pontosan hol van problemo / invalid mellett talán jobb ha azt írom, hogy "nem definialt a configtxt-ben mert lehet csak arról van szó
+      return(NA_character_) #todo: kell?
+
+     }
      for (condition in interRowConditions) {
-      combined_pattern <- paste0("\\b", condition$pattern, Position, "\\b")
-      if (grepl(combined_pattern, code) && !grepl(condition$extract, code)) {
+
+      #  todo: lehet ez nem jo mert megadja hogy milyen legyn az irány: landuse-pos-SK /
+      #  fentebb már ellenorizve is van, itt str_detect elég lesz nem? / v a combined_pattern,
+      #  combined_pattern2 2 feltétel nem kell majd csak a cond$extract
+      # combined_pattern <- paste0("\\b", condition$pattern, Position, "\\b")
+      # combined_pattern2 <- paste0("\\b", condition$pattern, Position, condition$extract, "\\b")
+
+      # if (grepl(combined_pattern, code) && !grepl(condition$extract, code)) {
+      #  return(condition$default)
+      # } else if (grepl(combined_pattern2, code)) {
+      #  return(condition$extract)
+      # }
+
+      if (!grepl(condition$extract, code)) {
        return(condition$default)
-      } else if (grepl(condition$extract, code)) {
-       return(str_extract(code, condition$extract))
+      } else {
+       return(condition$extract)
       }
+
      }
      return(NA_character_)  # Return NA if none of the conditions match
     }) %>% first()
@@ -561,8 +589,17 @@ splitCodeColumn <- function(df, config) {
     NA_character_
    }
   ) %>%
+  # select(-ValidCode)
   ungroup()
 
+ # Print all unique invalid codes
+ if (length(invalid_codes) > 0) {
+  # message("Invalid code detected: ", paste(invalid_codes, collapse = ", "))
+  add_message(env, paste0("Invalid code detected: ", paste(invalid_codes, collapse = ", ")), "info")
+ }
+
+ # print("Modified DataFrame:")
+ # print(head(df))
 
  return(df)
 }

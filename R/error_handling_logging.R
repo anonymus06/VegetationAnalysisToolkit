@@ -38,7 +38,7 @@ safely_map_NDVI <- function(all_data, env) {
  last_df <- all_data[[length(all_data)]] # better method to find the one with data?
 
  tryCatch({
-  map_all_NDVI(all_data, last_df)
+  map_all_NDVI(all_data, last_df, env)
  }, error = function(e) {
   handle_general_condition(e, "error", env)
   return(NULL)
@@ -295,3 +295,21 @@ print_collected_messages <- function(env, lower_limit, upper_limit, variable, de
  }
  cat(green("=========================\n"))
 }
+
+# Function to check if the code consists only of elements from pre-defined elements
+is_valid_code <- function(code, positionPattern, landusePattern, interRowConditions) {
+ position_elements <- str_split(positionPattern, "\\|", simplify = TRUE)
+ landuse_elements <- str_split(landusePattern, "\\|", simplify = TRUE)
+
+ extract_elements <- if (!is.null(interRowConditions)) {
+  unique(unlist(lapply(interRowConditions, function(cond) cond$extract)))
+ } else {
+  character(0) # todo: ezzel mukodik? kell egyáltalan? - ja
+ }
+
+ valid_elements <- c(position_elements, landuse_elements, extract_elements)
+ combined_pattern <- paste0("^(", paste(valid_elements, collapse = "|"), ")+$")
+
+ return(grepl(combined_pattern, code))
+}
+

@@ -10,9 +10,9 @@ is_directory <- function(file) {
  file.info(file)$isdir
 }
 
-map_all_NDVI <- function(all_data, last_df) {
+map_all_NDVI <- function(all_data, last_df, env) {
 mapply(
- function(data, data_name) map_NDVI(data, data_name, last_df),
+ function(data, data_name) map_NDVI(data, data_name, last_df, env),
  all_data[-length(all_data)],
  names(all_data)[-length(all_data)],
  SIMPLIFY = FALSE
