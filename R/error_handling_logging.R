@@ -286,6 +286,7 @@ print_collected_messages <- function(env, lower_limit, upper_limit, variable, de
  cat(sprintf("Selected variable: %s\n", variable))
  cat(sprintf("Lower limit: %s\n", lower_limit))
  cat(sprintf("Upper limit: %s\n", upper_limit))
+ cat(sprintf("Split Code Columns: %s\n", ifelse(split_code, "ON", "OFF")))
  cat(sprintf("Data validation: %s\n", ifelse(validate, "ON", "OFF")))
  cat(green("=========================\n"))
 
