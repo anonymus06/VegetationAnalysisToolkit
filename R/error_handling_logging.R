@@ -34,11 +34,11 @@ safely_filter_data <- function(all_data, env) {
  })
 }
 
-safely_map_NDVI <- function(all_data, env) {
+safely_map_NDVI <- function(all_data, split_code, env) {
  last_df <- all_data[[length(all_data)]] # better method to find the one with data?
 
  tryCatch({
-  map_all_NDVI(all_data, last_df, env)
+  map_all_NDVI(all_data, last_df, split_code, env)
  }, error = function(e) {
   handle_general_condition(e, "error", env)
   return(NULL)
@@ -48,13 +48,13 @@ safely_map_NDVI <- function(all_data, env) {
  })
 }
 
-safely_save_ndvi <- function(all_data, output, filename, lower_limit, upper_limit, env) {
+safely_save_ndvi <- function(all_data, output, filename, lower_limit, upper_limit, split_code, env) {
 
  # issues <- env$all_issues
  # messages <- env$messages
 
  tryCatch({
-  save_ndvi(all_data, output, filename, lower_limit, upper_limit, env)
+  save_ndvi(all_data, output, filename, lower_limit, upper_limit, split_code, env)
  }, error = function(e) {
   handle_general_condition(e, "error", env)
   # summary_msg <- summarize_and_log_issues(env)
@@ -185,6 +185,11 @@ summarize_and_log_issues <- function(env, validation_run = TRUE) { # todo: summa
   add_message(env, "Data validation was not run.", "issues")
 
  }
+
+ # if(split_column){
+ #  add_message(env, "Code was not ", "issues")
+ # }
+
 }
 
 #' Log issues

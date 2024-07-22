@@ -42,7 +42,7 @@
 #' @return None explicitly, but processed NDVI data is saved as Excel files in the specified output directory.
 #'
 #' @export
-process_NDVI <- function(folder_path, output, filename, lower_limit, upper_limit, variable, validate) {
+process_NDVI <- function(folder_path, output, filename, lower_limit, upper_limit, variable, validate, split_code=FALSE) {
  # Setup environments
  env <- setup_general_warnings_env()
  # issues <- env$all_issues
@@ -55,7 +55,7 @@ process_NDVI <- function(folder_path, output, filename, lower_limit, upper_limit
  read_ndvi_action <- function() safely_read_NDVI(folder_path, env)
  # read_ndvi_action <- function() safely_read_NDVI(folder_path, issues)
  filter_data_action <- function() safely_filter_data(loaded_data$all_data, env)
- map_ndvi_action <- function() safely_map_NDVI(all_data, env)
+ map_ndvi_action <- function() safely_map_NDVI(all_data, split_code, env)
  # map_ndvi_action <- function() {
  #  last_df <- all_data[[length(all_data)]]  # Extract the last dataframe for special processing
  #
@@ -69,7 +69,7 @@ process_NDVI <- function(folder_path, output, filename, lower_limit, upper_limit
  # }
 
  # save_ndvi_action <- function() safely_save_ndvi(all_data, output, filename, lower_limit, upper_limit, issues, messages)
- save_ndvi_action <- function() safely_save_ndvi(all_data, output, filename, lower_limit, upper_limit, env)
+ save_ndvi_action <- function() safely_save_ndvi(all_data, output, filename, lower_limit, upper_limit, split_code, env)
 
  # add_message(env, "Device: ", "info")
  # add_message(env, paste0("Selected vairable: ", variable), "info")
@@ -78,8 +78,10 @@ process_NDVI <- function(folder_path, output, filename, lower_limit, upper_limit
  # add_message(env, "", "info")
 
  # Execute actions with error handling
- loaded_data <- with_error_handling(read_ndvi_action, env)
- all_data <- with_error_handling(filter_data_action, env)
+ loaded_data <- with_error_handling(read_ndvi_action)
+ # loaded_data <- with_error_handling(read_ndvi_action, env)
+ all_data <- with_error_handling(filter_data_action)
+ # all_data <- with_error_handling(filter_data_action, env)
 
  # Optionally validate the data for integrity and structure
  if (validate) {
@@ -90,8 +92,10 @@ process_NDVI <- function(folder_path, output, filename, lower_limit, upper_limit
 
  # Process and save data if validation passed
  if (!validation_failed) {
-  all_data <- with_error_handling(map_ndvi_action, env)
-  with_error_handling(save_ndvi_action, env)
+  all_data <- with_error_handling(map_ndvi_action)
+  with_error_handling(save_ndvi_action)
+  # all_data <- with_error_handling(map_ndvi_action, env)
+  # with_error_handling(save_ndvi_action, env) #todo: env - redundant? - it is already in save_ndvi_action ??
  }
 
  summarize_and_log_issues(env, validation_run = validate)   # Summarize and log general warnings and errors
@@ -145,7 +149,7 @@ filter_data <- function(df){
 #' @importFrom dplyr %>% filter
 #'
 #' @return A transformed data frame.
-map_NDVI <- function(data, data_name, last_df, env){
+map_NDVI <- function(data, data_name, last_df, split_code, env){
  # Assuming txt_elements is the last dataframe being processed
  txt_elements <- data
 
@@ -177,8 +181,12 @@ map_NDVI <- function(data, data_name, last_df, env){
  new_names <- c("index", "NDVI", "Code", "Date") # Define the new column names
  filtered_data <- addDateColumn(filtered_data, date_str) %>% # We add date columns to work!
   renameColumnsByPosition(new_names) %>%  # Rename the selected columns!
-  convertData %>% # Change data type: [Sample NDVI Code Date -> numeric-numeric-character-date]
-  splitCodeColumn(config, env) # Apply splitCodeColumn to get Landuse, Position and InterRow columns!
+  convertData  # Change data type: [Sample NDVI Code Date -> numeric-numeric-character-date]
+
+ if (split_code) {
+  filtered_data <- filtered_data %>%
+   splitCodeColumn(config, env) # Apply splitCodeColumn to get Landuse, Position and InterRow columns!
+ }
 
  return(filtered_data)
 }
@@ -245,10 +253,10 @@ map_CCI <- function(data){
 #'         information about the filtered data.
 #'
 #' @importFrom openxlsx write.xlsx
-save_ndvi <- function(df, output, filename, lower_limit, upper_limit, env) {
+save_ndvi <- function(df, output, filename, lower_limit, upper_limit, split_code, env) {
  # Combine all provided NDVI data frames into one and create a filtered version!
- combined_df_all <- create_combined_ndvi(df)
- combined_df_filtered <- create_combined_ndvi(df, apply_ndvi_filter = TRUE, lower_limit = lower_limit, upper_limit = upper_limit) # Specify the range for acceptable NDVI values
+ combined_df_all <- create_combined_ndvi(df, apply_ndvi_filter=FALSE, lower_limit=NULL, upper_limit=NULL, split_code)
+ combined_df_filtered <- create_combined_ndvi(df, apply_ndvi_filter = TRUE, lower_limit = lower_limit, upper_limit = upper_limit, split_code) # Specify the range for acceptable NDVI values
 
  # Save the filtered data frame as a global variable for ease of access
  # filtered <<- combined_df_filtered
@@ -614,11 +622,26 @@ splitCodeColumn <- function(df, config, env) {
 #' @return A data frame combining all NDVI data with optional filtering applied.
 #'
 #' @importFrom dplyr bind_rows filter select
-create_combined_ndvi <- function(all_data, apply_ndvi_filter = FALSE, lower_limit = NULL, upper_limit = NULL) {
- combined_df <- bind_rows(all_data) %>%
-  select(-index) %>% # Remove 'index' column as it may be redundant (maybe we could get rid of it earlier)
-  # select(-Code) %>% # Optionally, keep 'Code' to handle or inspect codes not processed by algorithms
-  select(Date, Code, Position, Landuse, InterRow, NDVI) # Select relevant columns for final output
+create_combined_ndvi <- function(all_data, apply_ndvi_filter = FALSE, lower_limit = NULL, upper_limit = NULL, split_code) {
+
+ combined_df <- bind_rows(all_data)
+
+ if(split_code) {
+
+  combined_df <- combined_df %>%
+   select(-index) %>% # Remove 'index' column as it may be redundant (maybe we could get rid of it earlier)
+   # select(-Code) %>% # Optionally, keep 'Code' to handle or inspect codes not processed by algorithms
+   select(Date, Code, Position, Landuse, InterRow, NDVI) # Select relevant columns for final output
+
+ } else {
+
+  combined_df <- combined_df %>%
+   select(-index) %>% # Remove 'index' column as it may be redundant (maybe we could get rid of it earlier)
+   select(Date, Code, NDVI) # Select relevant columns for final output
+
+ }
+
+
 
  # Apply NDVI filtering if requested and limits are provided
  if (apply_ndvi_filter && !is.null(lower_limit) && !is.null(upper_limit)) {
