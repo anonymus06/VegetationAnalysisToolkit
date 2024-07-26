@@ -232,7 +232,68 @@ log_issue <- function(file, issue) {
 #'
 #' @importFrom dplyr group_by summarise mutate left_join
 #' @importFrom utils capture.output
-calculate_and_print_feedback <- function(all_data, filtered_data, varname, env) {
+# calculate_and_print_feedback <- function(all_data, filtered_data, varname, env) {
+#  # Summary feedback by Code
+#  feedback <- all_data %>%
+#   group_by(Code) %>%
+#   summarise(Total = n(), .groups = "drop") %>%
+#   left_join(filtered_data %>% group_by(Code) %>% summarise(Filtered = n(), .groups = "drop"),
+#             by = "Code"
+#   ) %>%
+#   mutate(
+#    Filtered = ifelse(is.na(Filtered), 0, Filtered),
+#    Removed = Total - Filtered,
+#    PercentageRemoved = (Removed / Total) * 100
+#   )
+#
+#  # Notification about the availability of feedback in text files
+#  # cat("For feedback on data filtering, please check the 'feedback.txt' for a summary by Code, and 'detailed_feedback.txt' for comprehensive details grouped by Date and Code!\n")
+#  # messages <- add_message(messages, "Data filtering feedback: Please check the 'feedback.txt' for a summary by Code, and 'detailed_feedback.txt' for comprehensive details grouped by Date and Code!", "info")
+#  add_message(env, "Data filtering results are available in 'feedback.txt' (summary by Code) and 'detailed_feedback.txt' (details by Date and Code).", "info")
+#
+#  # Save the feedback content to a text file
+#  feedback_content <- capture.output({
+#   cat("Feedback on Data Filtering, Grouped by Code:\n")
+#   print(feedback, n = Inf)
+#  })
+#  writeLines(feedback_content, paste0(varname, "_feedback.txt"))
+#
+#  # Detailed feedback by Date and Code
+#  feedback <- all_data %>%
+#   group_by(Date, Code) %>%
+#   summarise(Total = n(), .groups = "drop") %>%
+#   left_join(filtered_data %>% group_by(Date, Code) %>% summarise(Filtered = n(), .groups = "drop"),
+#             by = c("Date", "Code")
+#   ) %>%
+#   mutate(
+#    Filtered = ifelse(is.na(Filtered), 0, Filtered),
+#    Removed = Total - Filtered,
+#    PercentageRemoved = (Removed / Total) * 100
+#   )
+#
+#  # Save detailed feedback to text file
+#  feedback_content <- capture.output({
+#   cat("Detailed Feedback on Data Filtering, Grouped by Date and Code:\n")
+#   print(feedback, n = Inf)
+#  })
+#  writeLines(feedback_content, paste0(varname, "_detailed_feedback.txt"))
+# }
+calculate_and_print_feedback <- function(all_data, filtered_data, output, varname, env) {
+
+
+ # Header information
+ summary_file_name <- paste0(basename(getwd()), "/", output, varname, "_feedback.txt")
+ detailed_file_name <- paste0(basename(getwd()), "/", output, varname, "_detailed_feedback.txt")
+
+ summary_file_content <- "Overview of data filtering results"
+ detailed_file_content <- "Detailed data filtering results"
+
+ # Generate headers
+ project_header_summary <- generate_project_header(summary_file_name, summary_file_content)
+ project_header_detailed <- generate_project_header(detailed_file_name, detailed_file_content)
+
+
+
  # Summary feedback by Code
  feedback <- all_data %>%
   group_by(Code) %>%
@@ -243,23 +304,22 @@ calculate_and_print_feedback <- function(all_data, filtered_data, varname, env) 
   mutate(
    Filtered = ifelse(is.na(Filtered), 0, Filtered),
    Removed = Total - Filtered,
-   PercentageRemoved = (Removed / Total) * 100
+   PercentageRemoved = round((Removed / Total) * 100, 2)
   )
 
- # Notification about the availability of feedback in text files
- # cat("For feedback on data filtering, please check the 'feedback.txt' for a summary by Code, and 'detailed_feedback.txt' for comprehensive details grouped by Date and Code!\n")
- # messages <- add_message(messages, "Data filtering feedback: Please check the 'feedback.txt' for a summary by Code, and 'detailed_feedback.txt' for comprehensive details grouped by Date and Code!", "info")
- add_message(env, "Data filtering results are available in 'feedback.txt' (summary by Code) and 'detailed_feedback.txt' (details by Date and Code).", "info")
-
- # Save the feedback content to a text file
- feedback_content <- capture.output({
-  cat("Feedback on Data Filtering, Grouped by Code:\n")
-  print(feedback, n = Inf)
+ # Summary feedback section
+ summary_feedback <- capture.output({
+  cat("Summary of Data Filtering, Grouped by Code:\n")
+  cat(sprintf("%-10s %-7s %-9s %-7s %-20s\n", "Code", "Total", "Filtered", "Removed", "Percentage Removed (%)"))
+  cat(sprintf("%-10s %-7s %-9s %-7s %-20s\n", "----", "-----", "--------", "-------", "---------------------"))
+  for (i in 1:nrow(feedback)) {
+   cat(sprintf("%-10s %-7d %-9d %-7d %-20.2f\n", feedback$Code[i], feedback$Total[i], feedback$Filtered[i], feedback$Removed[i], feedback$PercentageRemoved[i]))
+  }
  })
- writeLines(feedback_content, paste0(varname, "_feedback.txt"))
+
 
  # Detailed feedback by Date and Code
- feedback <- all_data %>%
+ detailed_feedback <- all_data %>%
   group_by(Date, Code) %>%
   summarise(Total = n(), .groups = "drop") %>%
   left_join(filtered_data %>% group_by(Date, Code) %>% summarise(Filtered = n(), .groups = "drop"),
@@ -268,15 +328,31 @@ calculate_and_print_feedback <- function(all_data, filtered_data, varname, env) 
   mutate(
    Filtered = ifelse(is.na(Filtered), 0, Filtered),
    Removed = Total - Filtered,
-   PercentageRemoved = (Removed / Total) * 100
+   PercentageRemoved = round((Removed / Total) * 100, 2)
   )
 
- # Save detailed feedback to text file
- feedback_content <- capture.output({
-  cat("Detailed Feedback on Data Filtering, Grouped by Date and Code:\n")
-  print(feedback, n = Inf)
+ # Detailed feedback section
+ detailed_feedback_content <- capture.output({
+  cat("Detailed Data Filtering Feedback, Grouped by Date and Code:\n")
+  cat(sprintf("%-10s %-10s %-7s %-9s %-7s %-20s\n", "Date", "Code", "Total", "Filtered", "Removed", "Percentage Removed (%)"))
+  cat(sprintf("%-10s %-10s %-7s %-9s %-7s %-20s\n", "----", "----", "-----", "--------", "-------", "---------------------"))
+  for (i in 1:nrow(detailed_feedback)) {
+   cat(sprintf("%-10s %-10s %-7d %-9d %-7d %-20.2f\n", detailed_feedback$Date[i], detailed_feedback$Code[i], detailed_feedback$Total[i], detailed_feedback$Filtered[i], detailed_feedback$Removed[i], detailed_feedback$PercentageRemoved[i]))
+  }
  })
- writeLines(feedback_content, paste0(varname, "_detailed_feedback.txt"))
+
+
+
+
+ # Write the project header and summary feedback to a text file
+ writeLines(c(project_header_summary, summary_feedback), paste0(output, varname, "_feedback.txt"))
+
+ # Write the project header and detailed feedback to a text file
+ writeLines(c(project_header_detailed, detailed_feedback_content), paste0(output, varname, "_detailed_feedback.txt"))
+
+
+ # Notify the user
+ add_message(env, "Data filtering results are available in 'feedback.txt' (summary by Code) and 'detailed_feedback.txt' (details by Date and Code).", "info")
 }
 
 print_collected_messages <- function(env, lower_limit, upper_limit, variable, device = "Your Device Name", split_code, validate) {

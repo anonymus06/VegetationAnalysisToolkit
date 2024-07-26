@@ -171,3 +171,22 @@ add_message <- function(env, message, type = "info") {
  env$messages <- append(env$messages, list(list(message = message, type = type)))
 
 }
+
+# Function to generate project header
+generate_project_header <- function(file_name, file_content) {
+
+ # Header information
+ project_name <- tools::toTitleCase(basename(getwd()))
+ script_name <- "data_processing.R"
+ software_version <- paste0("VegetationAnalysisToolkit ", as.character(utils::packageVersion("VegetationAnalysisToolkit")))
+ generated_at <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+
+ capture.output({
+  cat("* Project:          ", project_name, "\n")
+  cat("* File content:     ", file_content, "\n")
+  cat("* File name:        ", file_name, "\n")
+  cat("* Script name:      ", script_name, "\n")
+  cat("* Software version: ", software_version, "\n")
+  cat("* Generated at:     ", generated_at, "\n\n")
+ })
+}

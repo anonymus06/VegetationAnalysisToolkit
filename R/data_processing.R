@@ -253,10 +253,41 @@ map_CCI <- function(data){
 #'         information about the filtered data.
 #'
 #' @importFrom openxlsx write.xlsx
+# save_ndvi <- function(df, output, filename, lower_limit, upper_limit, split_code, env) {
+#  # Combine all provided NDVI data frames into one and create a filtered version!
+#  combined_df_all <- create_combined_ndvi(df, apply_ndvi_filter=FALSE, lower_limit=NULL, upper_limit=NULL, split_code)
+#  combined_df_filtered <- create_combined_ndvi(df, apply_ndvi_filter = TRUE, lower_limit = lower_limit, upper_limit = upper_limit, split_code) # Specify the range for acceptable NDVI values
+#
+#  # Save the filtered data frame as a global variable for ease of access
+#  # filtered <<- combined_df_filtered
+#
+#  # Provide feedback on the amount of data filtered
+#  calculate_and_print_feedback(combined_df_all, combined_df_filtered, output, "ndvi", env)
+#
+#  # Define the filename for the raw data Excel file and save it
+#  output0 <- paste0(output, filename)
+#  write.xlsx(combined_df_all, output0, rowNames = FALSE)
+#
+#  # Modify the filename for the filtered data Excel file and save it
+#  output0 <- paste0(output, sub(".xlsx$", "_filtered.xlsx", filename))
+#  write.xlsx(combined_df_filtered, output0, rowNames = FALSE)
+#
+#  # Print confirmation messages with details about the saved files and filtering
+#  # cat("Data (filtered and raw) saved to", output, "\n")
+#  # cat("In filtered data values outside of bounds:", lower_limit, "and", upper_limit, "[NDVI] were discarded!\n")
+#  # messages <- add_message(messages, paste("Data (filtered and raw) saved to", output_dir), "info")
+#  # messages <- add_message(messages, paste("In filtered data values outside of bounds:", lower_limit, "and", upper_limit, "[NDVI] were discarded!"), "info")
+#  add_message(env, paste("Data (filtered and raw) saved to:", output_dir), "info")
+#  add_message(env, paste("In filtered data values outside of bounds:", lower_limit, "and", upper_limit, "were discarded!"), "info")
+# }
 save_ndvi <- function(df, output, filename, lower_limit, upper_limit, split_code, env) {
- # Combine all provided NDVI data frames into one and create a filtered version!
+
+ #todo: save_ndvi - excel - header egységes legyen
+ #    excel file - 2 sor van felette, ne legyen, v csak 1 !
+
+ # Combine all provided NDVI data frames into one and create a filtered version
  combined_df_all <- create_combined_ndvi(df, apply_ndvi_filter=FALSE, lower_limit=NULL, upper_limit=NULL, split_code)
- combined_df_filtered <- create_combined_ndvi(df, apply_ndvi_filter = TRUE, lower_limit = lower_limit, upper_limit = upper_limit, split_code) # Specify the range for acceptable NDVI values
+ combined_df_filtered <- create_combined_ndvi(df, apply_ndvi_filter=TRUE, lower_limit=lower_limit, upper_limit=upper_limit, split_code) # Specify the range for acceptable NDVI values
 
  # Save the filtered data frame as a global variable for ease of access
  # filtered <<- combined_df_filtered
@@ -264,21 +295,50 @@ save_ndvi <- function(df, output, filename, lower_limit, upper_limit, split_code
  # Provide feedback on the amount of data filtered
  calculate_and_print_feedback(combined_df_all, combined_df_filtered, output, "ndvi", env)
 
- # Define the filename for the raw data Excel file and save it
- output0 <- paste0(output, filename)
- write.xlsx(combined_df_all, output0, rowNames = FALSE)
 
- # Modify the filename for the filtered data Excel file and save it
- output0 <- paste0(output, sub(".xlsx$", "_filtered.xlsx", filename))
- write.xlsx(combined_df_filtered, output0, rowNames = FALSE)
+ # Define the output file paths
+ output_file_path_basic <- paste0(output, filename)
+ output_file_path_filtered <- paste0(output, sub(".xlsx$", "_filtered.xlsx", filename))
+
+ # Header information
+ basic_file_name <- paste0(basename(getwd()), "/", output_file_path_basic)
+ filtered_file_name <- paste0(basename(getwd()), "/", output_file_path_filtered)
+ basic_file_content <- "Unfiltered NDVI data"
+ filtered_file_content <- "Filtered NDVI data"
+
+ # Generate headers
+ project_header_basic <- generate_project_header(basic_file_name, basic_file_content)
+ project_header_filtered <- generate_project_header(filtered_file_name, filtered_file_content)
+
+ # Function to convert header to a data frame
+ header_to_df <- function(header) {
+  data.frame(Header = header, stringsAsFactors = FALSE)
+ }
+
+ # Convert headers to data frames
+ header_df_basic <- header_to_df(project_header_basic)
+ header_df_filtered <- header_to_df(project_header_filtered)
+
+ # Create workbooks and add worksheets
+ wb_basic <- createWorkbook()
+ wb_filtered <- createWorkbook()
+
+ addWorksheet(wb_basic, "Sheet1")
+ addWorksheet(wb_filtered, "Sheet1")
+
+ # Write headers and data to the worksheets
+ writeData(wb_basic, "Sheet1", header_df_basic, startRow = 1, colNames = FALSE)
+ writeData(wb_basic, "Sheet1", combined_df_all, startRow = nrow(header_df_basic) + 2, colNames = TRUE)
+ writeData(wb_filtered, "Sheet1", header_df_filtered, startRow = 1, colNames = FALSE)
+ writeData(wb_filtered, "Sheet1", combined_df_filtered, startRow = nrow(header_df_filtered) + 2, colNames = TRUE)
+
+ # Save the workbooks
+ saveWorkbook(wb_basic, output_file_path_basic, overwrite = TRUE)
+ saveWorkbook(wb_filtered, output_file_path_filtered, overwrite = TRUE)
 
  # Print confirmation messages with details about the saved files and filtering
- # cat("Data (filtered and raw) saved to", output, "\n")
- # cat("In filtered data values outside of bounds:", lower_limit, "and", upper_limit, "[NDVI] were discarded!\n")
- # messages <- add_message(messages, paste("Data (filtered and raw) saved to", output_dir), "info")
- # messages <- add_message(messages, paste("In filtered data values outside of bounds:", lower_limit, "and", upper_limit, "[NDVI] were discarded!"), "info")
- add_message(env, paste("Data (filtered and raw) saved to:", output_dir), "info")
- add_message(env, paste("In filtered data values outside of bounds:", lower_limit, "and", upper_limit, "were discarded!"), "info")
+ add_message(env, paste("Data (filtered and raw) saved to:", output), "info")
+ add_message(env, paste("In filtered data, values outside of bounds:", lower_limit, "and", upper_limit, "[NDVI] were discarded!"), "info")
 }
 
 #' Save CCI Data to Excel Files
