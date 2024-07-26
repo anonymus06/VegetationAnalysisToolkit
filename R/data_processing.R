@@ -103,7 +103,7 @@ process_NDVI <- function(folder_path, output, filename, lower_limit, upper_limit
  # print(env$messages)
  # Print all collected messages
  # print_collected_messages(env)
- print_collected_messages(env, lower_limit, upper_limit, variable, device = "Your Device Name", validate)
+ print_collected_messages(env, lower_limit, upper_limit, variable, device = "Your Device Name", split_code, validate)
 
 }
 
@@ -262,7 +262,7 @@ save_ndvi <- function(df, output, filename, lower_limit, upper_limit, split_code
  # filtered <<- combined_df_filtered
 
  # Provide feedback on the amount of data filtered
- calculate_and_print_feedback(combined_df_all, combined_df_filtered, "ndvi", env)
+ calculate_and_print_feedback(combined_df_all, combined_df_filtered, output, "ndvi", env)
 
  # Define the filename for the raw data Excel file and save it
  output0 <- paste0(output, filename)

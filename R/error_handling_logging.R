@@ -279,7 +279,7 @@ calculate_and_print_feedback <- function(all_data, filtered_data, varname, env) 
  writeLines(feedback_content, paste0(varname, "_detailed_feedback.txt"))
 }
 
-print_collected_messages <- function(env, lower_limit, upper_limit, variable, device = "Your Device Name", validate) {
+print_collected_messages <- function(env, lower_limit, upper_limit, variable, device = "Your Device Name", split_code, validate) {
  # Configuration Section
  cat(green("===== Configuration =====\n"))
  cat(sprintf("Device: %s\n", device))
