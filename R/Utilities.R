@@ -19,6 +19,13 @@ mapply(
 )
 }
 
+map_all_CCI <- function(all_data, split_code, env) {
+ # lapply(all_data, function(data) {
+ #  map_CCI(data, split_code=split_code, env=env)
+ # }) #todo: felesleges a lapply sztem, meg a map_all_CCI is! - majd kicserel mindenhol, nem kell majd!
+ map_CCI(data, split_code=split_code, env=env) #todo: egyenlőségjeles dolog sem kell?
+}
+
 #' Function to determine if a data frame is from an index file
 #'
 #' @param df_name The name of the data frame.
@@ -190,3 +197,5 @@ generate_project_header <- function(file_name, file_content) {
   cat("* Generated at:     ", generated_at, "\n\n")
  })
 }
+
+

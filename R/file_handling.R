@@ -95,8 +95,70 @@ read_NDVI <- function(folder_pathway, env,
 #'
 #' @importFrom openxlsx getSheetNames loadWorkbook read.xlsx
 #' @importFrom utils read.csv
+# read_Chlorophyll <- function(folder_pathway,
+#                              valid_patterns = c("^\\d{6}(\\d{8})?\\.csv$", "index\\.xlsx$")) {
+#  # List all the files in the directory with their paths
+#  files <- list.files(folder_pathway, full.names = TRUE)
+#
+#  # Initialize lists to store data and file mappings
+#  all_data <- list()
+#  data_frame_files <- list()
+#
+#  # Process each file in the directory
+#  process_file <- function(file) {
+#   # Determine the file extension and handle accordingly
+#   file_extension <- tools::file_ext(file)
+#
+#
+#   # Check if the file is a directory
+#   if (is_directory(file)) {
+#    log_skipped_file(file, "folder")
+#    return(NULL)
+#   }
+#
+#   # Check if the file name matches the valid patterns
+#   if (!check_naming_pattern(file, valid_patterns)) {
+#    log_issue(file, "Invalid naming pattern")
+#    return(NULL)
+#   }
+#
+#   # Handle Excel files (Chlorophyl index files)
+#   if (file_extension == "xlsx" && !startsWith(basename(file), "~$")) {
+#    return(handle_excel_file(file))
+#
+#    # Handle CSV files (Chlorophyl data files)
+#   } else if (file_extension == "CSV" && !startsWith(basename(file), "~$")) {
+#    return(handle_CSV_file(file))
+#
+#    # Skip temporary files (to avoid duplicates)
+#   } else if (startsWith(basename(file), "~$")) {
+#    log_skipped_file(file, "temporary file")
+#    return(NULL)
+#
+#    # Log any other skipped files for user awareness
+#   } else {
+#    log_skipped_file(file, "element")
+#    return(NULL)
+#   }
+#  }
+#
+#  # Loop through each file and process
+#  results <- lapply(files, process_file)
+#
+#  # Combine results
+#  for (result in results) {
+#   if (!is.null(result)) {
+#    all_data <- c(all_data, result$data)
+#    data_frame_files <- c(data_frame_files, result$files)
+#   }
+#  }
+#
+#  # Return the list of data and file mappings
+#  return(list(all_data = all_data, data_frame_files = data_frame_files))
+# }
 read_Chlorophyll <- function(folder_pathway,
-                             valid_patterns = c("^\\d{6}(\\d{8})?\\.csv$", "index\\.xlsx$")) {
+                             valid_patterns = c("^\\d{6}(\\d{8})?", "index"),
+                             env) {
  # List all the files in the directory with their paths
  files <- list.files(folder_pathway, full.names = TRUE)
 
@@ -112,13 +174,13 @@ read_Chlorophyll <- function(folder_pathway,
 
   # Check if the file is a directory
   if (is_directory(file)) {
-   log_skipped_file(file, "folder")
+   log_skipped_file(file, "folder", env)
    return(NULL)
   }
 
   # Check if the file name matches the valid patterns
   if (!check_naming_pattern(file, valid_patterns)) {
-   log_issue(file, "Invalid naming pattern")
+   log_issue(file, "Invalid naming pattern", env)
    return(NULL)
   }
 
@@ -132,12 +194,12 @@ read_Chlorophyll <- function(folder_pathway,
 
    # Skip temporary files (to avoid duplicates)
   } else if (startsWith(basename(file), "~$")) {
-   log_skipped_file(file, "temporary file")
+   log_skipped_file(file, "temporary file", env)
    return(NULL)
 
    # Log any other skipped files for user awareness
   } else {
-   log_skipped_file(file, "element")
+   log_skipped_file(file, "element", env)
    return(NULL)
   }
  }
@@ -174,8 +236,22 @@ log_skipped_file <- function(file, reason, env) {
 #' @param valid_patterns A character vector of valid filename patterns.
 #'
 #' @return TRUE if the file name matches any of the valid patterns, FALSE otherwise.
+# check_naming_pattern <- function(file, valid_patterns) {
+#  any(sapply(valid_patterns, function(pattern) grepl(pattern, basename(file))))
+# }
+# todo: exact match? - index, de vmi más mellette, meg számsor, de 10elemu, v betu pluszba és akkor is TRUE lesz!
 check_naming_pattern <- function(file, valid_patterns) {
- any(sapply(valid_patterns, function(pattern) grepl(pattern, basename(file))))
+
+ remove_file_extension <- function(filename) {
+  sub("\\.[^.]*$", "", filename)
+ }
+
+ # Remove the file extension from the filename
+ basename_file <- remove_file_extension(basename(file))
+
+
+ # any(sapply(valid_patterns, function(pattern) grepl(pattern, basename(file))))
+ any(sapply(valid_patterns, function(pattern) grepl(pattern, basename_file)))
 }
 
 #' Handle Excel files
@@ -257,11 +333,19 @@ handle_text_file <- function(file, skip_rows = 4, env) {
 #' @return A list containing:
 #'         - `data`: A list with the data frame of the CSV file.
 #'         - `files`: A list mapping the file name to the file path.
+# handle_CSV_file <- function(file) {
+#  sheets <- read.csv(file, sep = ";", header = TRUE, encoding = "UTF-8", check.names = FALSE)
+#  data <- list()
+#  files <- list()
+#  data[[basename(file)]] <- sheet_data
+#  files[[basename(file)]] <- file
+#  list(data = data, files = files)
+# }
 handle_CSV_file <- function(file) {
  sheets <- read.csv(file, sep = ";", header = TRUE, encoding = "UTF-8", check.names = FALSE)
  data <- list()
  files <- list()
- data[[basename(file)]] <- sheet_data
+ data[[basename(file)]] <- sheets
  files[[basename(file)]] <- file
  list(data = data, files = files)
 }

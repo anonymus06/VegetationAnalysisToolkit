@@ -19,6 +19,40 @@ safely_read_NDVI <- function(folder_path, env) {
  })
 }
 
+safely_read_Chlorophyll <- function(folder_path, env) {
+ tryCatch({
+  read_Chlorophyll(folder_path, valid_patterns, env)
+ }, error = function(e) {
+  handle_general_condition(e, "error", env)
+  return(NULL)
+ }, warning = function(w) {
+  handle_general_condition(w, "warning", env)
+ })
+}
+
+safely_map_CCI <- function(all_data, split_code, env) {
+ tryCatch({
+  map_all_CCI(all_data, split_code, env)
+ }, error = function(e) {
+  handle_general_condition(e, "error", env)
+  return(NULL)
+ }, warning = function(w) {
+  handle_general_condition(w, "warning", env)
+  invokeRestart("muffleWarning")
+ })
+}
+safely_save_cci <- function(all_data, output, filename, lower_limit, upper_limit, split_code, env) {
+ tryCatch({
+  save_cci(all_data, output, filename, lower_limit, upper_limit, split_code, env)
+ }, error = function(e) {
+  handle_general_condition(e, "error", env)
+  return(NULL)
+ }, warning = function(w) {
+  handle_general_condition(w, "warning", env)
+  invokeRestart("muffleWarning")
+ })
+}
+
 safely_filter_data <- function(all_data, env) {
  tryCatch({
   filter_data(all_data)
@@ -74,14 +108,23 @@ safely_save_ndvi <- function(all_data, output, filename, lower_limit, upper_limi
 #' @details This function handles general warnings and errors by logging the message using `log_general_issue`.
 #'          If the condition is an error, it stops execution by calling `stop` with the message.
 #'          If the condition is a warning, it re-issues the warning using `warning`.
+# handle_general_condition <- function(cond, type = "error", env) {
+#  msg <- paste(type, ":", conditionMessage(cond))
+#  log_general_issue(msg)
+#  env$all_issues <- append(env$all_issues, list(msg))
+#
+#  if (type == "warning") {
+#   invokeRestart("muffleWarning") #todo: needed?
+#  }
+# }
 handle_general_condition <- function(cond, type = "error", env) {
  msg <- paste(type, ":", conditionMessage(cond))
  log_general_issue(msg)
- env$all_issues <- append(env$all_issues, list(msg))
+ env$all_issues <- append(env$all_issues, list(msg)) #TODO: KELL IDE EZ? MIHEZ KELL? - HA NEM AKKOR TOROL, env IS TOROL MINDENHONNAN AHOVA MIATTA RAKTAM
 
- if (type == "warning") {
-  invokeRestart("muffleWarning")
- }
+ # if (type == "warning") {
+ #  invokeRestart("muffleWarning") #todo: needed?
+ # }
 }
 
 #' Logging Function for Validation Issues
@@ -196,9 +239,13 @@ summarize_and_log_issues <- function(env, validation_run = TRUE) { # todo: summa
 #'
 #' @param file The file with an issue.
 #' @param issue The issue description.
-log_issue <- function(file, issue) {
+# log_issue <- function(file, issue) {
+#  message <- paste("Issue with file:", file, "-", issue)
+#  handle_general_condition(simpleError(message), "warning") #todo: env javítva lett beletéve!!! - vmiért lefutott pedig eddig is bár most nem mert rossz volt végulis
+# }
+log_issue <- function(file, issue, env) {
  message <- paste("Issue with file:", file, "-", issue)
- handle_general_condition(simpleError(message), "warning")
+ handle_general_condition(simpleError(message), "warning", env) #todo: env javítva lett beletéve!!! - vmiért lefutott pedig eddig is bár most nem mert rossz volt végulis
 }
 
 #' Calculate and Print Feedback for Data Filtering
