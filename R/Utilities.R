@@ -198,4 +198,20 @@ generate_project_header <- function(file_name, file_content) {
  })
 }
 
+# Function to sort patterns by length and extract the longest match
+extract_with_sorted_patterns <- function(text, pattern) {
+ # Split the pattern into individual elements
+ pattern_list <- unlist(strsplit(pattern, "\\|"))
+
+ # Sort patterns by length in descending order
+ sorted_patterns <- pattern_list[order(nchar(pattern_list), decreasing = TRUE)]
+
+ # Combine the sorted patterns back into a single pattern string
+ sorted_pattern <- paste(sorted_patterns, collapse = "|")
+
+ # Use the sorted pattern string with str_extract
+ result <- str_extract(text, sorted_pattern)
+
+ return(result)
+}
 

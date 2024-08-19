@@ -36,13 +36,13 @@
 #' # plot boxplot for specified dates and location
 #' plot_NDVI(df, code = "CSTA", tstart = "2023-05-12", tend = "2023-08-18", plot_type = "boxplot")
 #' }
-plot_NDVI <- function(df, code, tstart, tend, plot_type) {
+plot_NDVI <- function(df, code=NULL, tstart=NULL, tend=NULL, plot_type=NULL) {
 
   # ---- initial part of procedure ----
 
   # set optional arguments
   # opt_param <- c("code", "tstart", "tend", "plot_type")
-  code <- tstart <- tend <- plot_type <- NULL
+  # code <- tstart <- tend <- plot_type <- NULL
 
   # load additional arguments
   # param <- list(...)
@@ -69,12 +69,17 @@ plot_NDVI <- function(df, code, tstart, tend, plot_type) {
     stop("Provided code does not exist in the dataset!")
   }
 
+  # ensure NDVI is numeric and 'Date' is in the correct format
+  df$Date <- as.Date(df$Date, origin = "1899-12-30")
+  df$Date <- as.Date(df$Date, format="%Y-%m-%d")
+  df$NDVI <- as.numeric(as.character(df$NDVI))
+
   # convert and validate 'tstart' and 'tend'
   date_range <- range(df$Date, na.rm = TRUE)
   if (!is.null(tstart)) {
     tstart <- as_date(tstart)
     if (is.na(tstart) || tstart < date_range[1]) stop("'tstart' is out of the dataset's date range.")
-  }
+  } #todo: date_range - adott code-ra nézzük a tartományát ne az egész adatsornak!
   if (!is.null(tend)) {
     tend <- as_date(tend)
     if (is.na(tend) || tend > date_range[2]) stop("'tend' is out of the dataset's date range.")
@@ -82,10 +87,6 @@ plot_NDVI <- function(df, code, tstart, tend, plot_type) {
   if (!is.null(tstart) && !is.null(tend) && tstart > tend) {
     stop("'tstart' must be before 'tend'.")
   }
-
-  # ensure NDVI is numeric and 'Date' is in the correct format
-  df$Date <- as.Date(df$Date, format="%Y-%m-%d")
-  df$NDVI <- as.numeric(as.character(df$NDVI))
 
 
   # ---- main part of procedure ----
@@ -112,9 +113,9 @@ plot_NDVI <- function(df, code, tstart, tend, plot_type) {
 
     }
 
-    p <- ggplot(grouped_df, aes(x = Date, y = Avg_NDVI, group = Code, color = Code)) +
+    p <- ggplot(grouped_df, aes(x = Date, y = Avg_NDVI, group = code, color = code)) +
       geom_line() + geom_point() + theme_minimal() +
-      labs(title = ifelse(!is.null(code), paste0("NDVI Over Time for Code: ", code), "NDVI Over Time by Code"),
+      labs(title = ifelse(!is.null(code), paste0("NDVI Over Time for Code: ", code), "NDVI Over Time by Code"), # todo: címbe bele kell rakni ha jelmagyarázatba már látszik a code?
            x = "Date", y = "NDVI")
 
   } else if (plot_type == "boxplot") {

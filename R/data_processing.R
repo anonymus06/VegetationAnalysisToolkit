@@ -107,6 +107,65 @@ process_NDVI <- function(folder_path, output, filename, lower_limit, upper_limit
 
 }
 
+#' Ensure that each file starts with a header comment that explains the purpose of the file and the functions it contains.
+
+#' Process Chlorophyll Data for Analysis
+#'
+#' @param folder_path The directory path where the chlorophyll data files are located.
+#' @param output The directory path where the processed files will be saved.
+#' @param filename The base name for the output files.
+#' @param lower_limit The lower limit for chlorophyll data filtering.
+#' @param upper_limit The upper limit for chlorophyll data filtering.
+#' @param variable The target variable name for consistency checks, typically "CCI" for chlorophyll content index.
+#' @param validate A logical flag to indicate whether data integrity checks should be performed.
+#'
+#' @description This function streamlines the process of reading, validating, transforming, and saving chlorophyll data.
+#'              It ensures that the data is in the correct format and structure for further analysis.
+#'
+#' @details
+#' The function performs several key operations:
+#'   1. Reads in chlorophyll data from specified folder paths.
+#'   2. Optionally validates the data for integrity and structure.
+#'   3. Applies a series of transformations to standardize and enrich the data.
+#'   4. Saves the transformed data into designated output files.
+#'
+#' @section README:
+#' Guidelines for Preparing Your Input Files:
+#'
+#' Ensure your input data files are properly formatted and named according to the following guidelines to
+#' facilitate successful processing:
+#'
+#' - **File Naming Convention**: Name your data files to include the date of measurement. Use the format %y%m%d for dates (e.g., 230528 for May 28, 2023) or %y%m%d%h for specific hours (e.g., 23052810 for 10 AM on May 28, 2023). Simple date formats are preferred, such as 230528 or 23052810.
+#'
+#' - **Required Data Structure**: Your data has to be in the first sheet and first column of a CSV file. Although the sheet name can be arbitrary, ensure that column names start from the first row.
+#'   Your data should include the following sequence of column name-data pairs in the first column:
+#'   <Sample, Time/Date, Units, Reading, Lat, Lon, DOP, # Sat, Point>. This structure is crucial for the script to correctly interpret and process your data.
+#'
+#' - **Index File Requirement**: Accompany your measurement data with an Excel file containing indexes and associated codes for each measurement. Name the tabs within this Excel file after the measurement dates to correlate them directly with the data files.
+#'
+#' **Coding and Marking of Data Sites**:
+#' In the provided example (refer to the index file's "position" column), data sites are designated with specific codes:
+#' RA, RF, EA, EF, SZA, SZF, CSUA, CSUF, CSUASK, CSUFSK, CSUAHP, CSUAHPSK, CSRA, CSRF, CSRASK, CSRFSK, CSRAHP, CSRAHPSK, CSTA, CSTF, CSTASK, CSTFSK.
+#'
+#' **Supported Site Coding**:
+#' - **POSITION**: F (Front), A (Adjacent), HP (High Point)
+#' - **LANDUSE**: CSU (Crop Standard Use), CSR (Crop Sustainable Rotation), CST (Crop Sustainable Tillage), R (Rural), E (Ecological), SZ (Special Zone)
+#' - **INTERROW**: S (Standard Row), SK (Skipped Row)
+#'
+#' It is recommended to manually review your input data files for adherence to these guidelines before proceeding with the script. This preliminary check helps ensure smooth data processing and accurate results.
+#'
+#' @examples
+#' # Process chlorophyll data with validation and save the results
+#' \dontrun{
+#' process_Chlorophyll("path/to/data", "path/to/output", "chlorophyll_processed",
+#' 0.2, 2.5, "CCI", TRUE)
+#' }
+#'
+#' @return None explicitly, but the processed data is saved as Excel files in the specified output directory.
+#'
+#' @importFrom dplyr %>%
+#'
+#' @export
 process_Chlorophyll <- function(folder_path, output, filename, lower_limit, upper_limit, variable, validate, split_code=FALSE) {
  # Setup environments
  env <- setup_general_warnings_env()
@@ -826,10 +885,79 @@ convertData <- function(df) {
 #' @importFrom dplyr %>% mutate if_else rowwise ungroup
 #' @importFrom purrr map_chr
 #' @importFrom stringr str_extract
+# splitCodeColumn <- function(df, config, env) {
+#  # print("Original DataFrame:")
+#  # print(head(df))
+#
+#  positionPattern <- config$positionPattern
+#  landusePattern <- config$landusePattern
+#  interRowConditions <- config$interRowConditions
+#
+#  invalid_codes <- character()  # Initialize a local vector to store invalid codes
+#
+#  df <- df %>%
+#   rowwise() %>%
+#   mutate(
+#    ValidCode = is_valid_code(Code, positionPattern, landusePattern, interRowConditions),
+#    Position = if (ValidCode) str_extract(Code, positionPattern) else NA_character_,
+#    Landuse = if (ValidCode) str_extract(Code, landusePattern) else NA_character_
+#   ) %>%
+#   ungroup() %>%
+#   select(-ValidCode) %>% #todo: lentebb ezt hasznalni az if-ben?
+#   rowwise() %>%
+#   mutate(
+#    InterRow = if (!is.null(interRowConditions)) {
+#     map_chr(Code, function(code) {
+#      if (!is_valid_code(code, positionPattern, landusePattern, interRowConditions)) {
+#       # if (!ValidCode) {
+#
+#       invalid_codes <<- unique(c(invalid_codes, code))
+#       # message(paste("Invalid code detected:", code)) # todo: global helyett más megoldás / sheet is ott legyen, h pontosan hol van problemo / invalid mellett talán jobb ha azt írom, hogy "nem definialt a configtxt-ben mert lehet csak arról van szó
+#       return(NA_character_) #todo: kell?
+#
+#      }
+#      for (condition in interRowConditions) {
+#
+#       #  todo: lehet ez nem jo mert megadja hogy milyen legyn az irány: landuse-pos-SK /
+#       #  fentebb már ellenorizve is van, itt str_detect elég lesz nem? / v a combined_pattern,
+#       #  combined_pattern2 2 feltétel nem kell majd csak a cond$extract
+#       # combined_pattern <- paste0("\\b", condition$pattern, Position, "\\b")
+#       # combined_pattern2 <- paste0("\\b", condition$pattern, Position, condition$extract, "\\b")
+#
+#       # if (grepl(combined_pattern, code) && !grepl(condition$extract, code)) {
+#       #  return(condition$default)
+#       # } else if (grepl(combined_pattern2, code)) {
+#       #  return(condition$extract)
+#       # }
+#
+#       if (!grepl(condition$extract, code)) {
+#        return(condition$default)
+#       } else {
+#        return(condition$extract)
+#       }
+#
+#      }
+#      return(NA_character_)  # Return NA if none of the conditions match
+#     }) %>% first()
+#    } else {
+#     NA_character_
+#    }
+#   ) %>%
+#   # select(-ValidCode)
+#   ungroup()
+#
+#  # Print all unique invalid codes
+#  if (length(invalid_codes) > 0) {
+#   # message("Invalid code detected: ", paste(invalid_codes, collapse = ", "))
+#   add_message(env, paste0("Invalid code detected: ", paste(invalid_codes, collapse = ", ")), "info")
+#  }
+#
+#  # print("Modified DataFrame:")
+#  # print(head(df))
+#
+#  return(df)
+# }
 splitCodeColumn <- function(df, config, env) {
- # print("Original DataFrame:")
- # print(head(df))
-
  positionPattern <- config$positionPattern
  landusePattern <- config$landusePattern
  interRowConditions <- config$interRowConditions
@@ -840,43 +968,28 @@ splitCodeColumn <- function(df, config, env) {
   rowwise() %>%
   mutate(
    ValidCode = is_valid_code(Code, positionPattern, landusePattern, interRowConditions),
-   Position = if (ValidCode) str_extract(Code, positionPattern) else NA_character_,
-   Landuse = if (ValidCode) str_extract(Code, landusePattern) else NA_character_
+   # Position = if (ValidCode) str_extract(Code, positionPattern) else NA_character_,
+   # Landuse = if (ValidCode) str_extract(Code, landusePattern) else NA_character_
+   Position = if (ValidCode) extract_with_sorted_patterns(Code, positionPattern) else NA_character_,
+   Landuse = if (ValidCode) extract_with_sorted_patterns(Code, landusePattern) else NA_character_
   ) %>%
   ungroup() %>%
-  select(-ValidCode) %>% #todo: lentebb ezt hasznalni az if-ben?
+  select(-ValidCode) %>%
   rowwise() %>%
   mutate(
    InterRow = if (!is.null(interRowConditions)) {
     map_chr(Code, function(code) {
      if (!is_valid_code(code, positionPattern, landusePattern, interRowConditions)) {
-      # if (!ValidCode) {
-
       invalid_codes <<- unique(c(invalid_codes, code))
-      # message(paste("Invalid code detected:", code)) # todo: global helyett más megoldás / sheet is ott legyen, h pontosan hol van problemo / invalid mellett talán jobb ha azt írom, hogy "nem definialt a configtxt-ben mert lehet csak arról van szó
-      return(NA_character_) #todo: kell?
-
+      return(NA_character_)
      }
      for (condition in interRowConditions) {
-
-      #  todo: lehet ez nem jo mert megadja hogy milyen legyn az irány: landuse-pos-SK /
-      #  fentebb már ellenorizve is van, itt str_detect elég lesz nem? / v a combined_pattern,
-      #  combined_pattern2 2 feltétel nem kell majd csak a cond$extract
-      # combined_pattern <- paste0("\\b", condition$pattern, Position, "\\b")
-      # combined_pattern2 <- paste0("\\b", condition$pattern, Position, condition$extract, "\\b")
-
-      # if (grepl(combined_pattern, code) && !grepl(condition$extract, code)) {
-      #  return(condition$default)
-      # } else if (grepl(combined_pattern2, code)) {
-      #  return(condition$extract)
-      # }
-
-      if (!grepl(condition$extract, code)) {
+      # Simplify the condition handling
+      if (grepl(condition$pattern, code) && !grepl(condition$extract, code)) {
        return(condition$default)
-      } else {
+      } else if (grepl(condition$extract, code)) {
        return(condition$extract)
       }
-
      }
      return(NA_character_)  # Return NA if none of the conditions match
     }) %>% first()
@@ -884,17 +997,12 @@ splitCodeColumn <- function(df, config, env) {
     NA_character_
    }
   ) %>%
-  # select(-ValidCode)
   ungroup()
 
- # Print all unique invalid codes
+ # Log all unique invalid codes
  if (length(invalid_codes) > 0) {
-  # message("Invalid code detected: ", paste(invalid_codes, collapse = ", "))
   add_message(env, paste0("Invalid code detected: ", paste(invalid_codes, collapse = ", ")), "info")
  }
-
- # print("Modified DataFrame:")
- # print(head(df))
 
  return(df)
 }

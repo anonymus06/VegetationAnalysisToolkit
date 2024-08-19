@@ -20,7 +20,7 @@
 #' @importFrom utils read.table
 read_NDVI <- function(folder_pathway, env,
                       skip_rows = 4,
-                      valid_patterns = c("plantpen_NDVI_\\d{6}\\.txt$", "index\\.xlsx$")) {
+                      valid_patterns = c("plantpen_NDVI_\\d{6}.txt$", "index.xlsx$")) {
  # List all the files in the directory with their paths
  files <- list.files(folder_pathway, full.names = TRUE)
 
@@ -42,7 +42,7 @@ read_NDVI <- function(folder_pathway, env,
 
   # Check if the file name matches the valid patterns
   if (!check_naming_pattern(file, valid_patterns)) {
-   log_issue(file, "Invalid naming pattern")
+   log_issue(file, "Invalid naming pattern", env)
    return(NULL)
   }
 
@@ -236,23 +236,23 @@ log_skipped_file <- function(file, reason, env) {
 #' @param valid_patterns A character vector of valid filename patterns.
 #'
 #' @return TRUE if the file name matches any of the valid patterns, FALSE otherwise.
-# check_naming_pattern <- function(file, valid_patterns) {
-#  any(sapply(valid_patterns, function(pattern) grepl(pattern, basename(file))))
-# }
-# todo: exact match? - index, de vmi más mellette, meg számsor, de 10elemu, v betu pluszba és akkor is TRUE lesz!
 check_naming_pattern <- function(file, valid_patterns) {
-
- remove_file_extension <- function(filename) {
-  sub("\\.[^.]*$", "", filename)
- }
-
- # Remove the file extension from the filename
- basename_file <- remove_file_extension(basename(file))
-
-
- # any(sapply(valid_patterns, function(pattern) grepl(pattern, basename(file))))
- any(sapply(valid_patterns, function(pattern) grepl(pattern, basename_file)))
+ any(sapply(valid_patterns, function(pattern) grepl(pattern, basename(file))))
 }
+# todo: exact match? - index, de vmi más mellette, meg számsor, de 10elemu, v betu pluszba és akkor is TRUE lesz!
+# check_naming_pattern <- function(file, valid_patterns) {
+#
+#  remove_file_extension <- function(filename) {
+#   sub("\\.[^.]*$", "", filename)
+#  }
+#
+#  # Remove the file extension from the filename
+#  basename_file <- remove_file_extension(basename(file))
+#
+#
+#  # any(sapply(valid_patterns, function(pattern) grepl(pattern, basename(file))))
+#  any(sapply(valid_patterns, function(pattern) grepl(pattern, basename_file)))
+# }
 
 #' Handle Excel files
 #'
@@ -362,7 +362,7 @@ readSimpleConfig <- function(file) {
   landuse_patterns <- unlist(strsplit(lines[3], "|", fixed = TRUE))
   interRowConditions <- lapply(landuse_patterns, function(pat) {
    # list(pattern = paste0("\\b", pat, "\\b"), default = lines[4], extract = lines[5])
-   list(pattern = pat, default = lines[4], extract = lines[5])
+   list(pattern = pat, default = lines[4], extract = lines[5]) #todo: lines[4]lines[5] vmi legyen v na legyen ha nincs data!
   })
   config$interRowConditions <- interRowConditions
  } else {
