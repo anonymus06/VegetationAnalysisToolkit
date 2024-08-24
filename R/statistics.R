@@ -1,3 +1,5 @@
+
+#' @export
 generate_statistics <- function(output_path, start_date = NULL, end_date = NULL) {
 
  # List the files in the folder

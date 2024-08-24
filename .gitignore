@@ -1,5 +1,7 @@
 .Rproj.user
-inst/doc
+.git
 .Rhistory
 .RData
 .Ruserdata
+.Rbuildignore
+README.html
