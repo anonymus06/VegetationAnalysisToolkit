@@ -1,10 +1,7 @@
 Package: VegetationAnalysisToolkit
 Title: Functions for Vegetation Data Analysis
 Version: 0.0.0.9000
-Authors@R: c( 
-    person("Levente", "Czelnai", email = "czelnai.levente@gmail.com", role = c("aut", "cre")),
-    person("ChatGPT", "OpenAI", role = c("ctb"), comment = "ChatGPT was used for assistance in developing this package.")
-   )
+Authors@R: person("Levente", "Czelnai", email = "czelnai.levente@gmail.com", role = c("aut", "cre"))
 Description: Supports detailed handling of vegetation indexes (such as Chlorophy and NDVI data), offering functions for efficient processing, analysis, and visualization capabilities for comprehensive insights into vegetation health and dynamics.
 License: MIT + file LICENSE
 Encoding: UTF-8
@@ -16,9 +13,9 @@ Imports:
     lubridate,
     plotly, 
     readxl,
-	crayon,
-	yaml,
-	purrr
+    crayon,
+    yaml,
+    purrr
 RoxygenNote: 7.3.2
 Depends:
     R (>= 3.5.0)
