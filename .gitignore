@@ -1,7 +1,13 @@
 .Rproj.user
-.git
 .Rhistory
 .RData
 .Ruserdata
-.Rbuildignore
 README.html
+developer_tools
+val_issues.txt
+error_log.txt
+out
+inst/extdata/chlorophyl/error-test
+inst/extdata/chlorophyl/original
+inst/extdata/ndvi/error-test
+inst/extdata/ndvi/original
