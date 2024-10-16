@@ -4,7 +4,7 @@
 #'
 #' @param folder_path The directory path where the data files are located.
 #' @param output The directory path where the processed files will be saved.
-#' @param device_type
+#' @param device_type A character string specifying the type of data ("PPNP" for PlantPen or "MC100" for MC-100).
 #' @param lower_limit The lower limit for data filtering.
 #' @param upper_limit The upper limit for data filtering.
 #' @param variable The target variable name for consistency checks, typically "CCI" for chlorophyll content index.

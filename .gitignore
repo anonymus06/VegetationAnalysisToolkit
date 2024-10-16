@@ -7,7 +7,8 @@ developer_tools
 val_issues.txt
 error_log.txt
 out
-inst/extdata/chlorophyl/error-test
-inst/extdata/chlorophyl/original
-inst/extdata/ndvi/error-test
-inst/extdata/ndvi/original
+VegetationAnalysisToolkit_Project
+man/*.Rd
+.DS_Store
+*.tar.gz
+inst/extdata/*

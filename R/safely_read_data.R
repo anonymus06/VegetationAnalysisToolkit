@@ -15,7 +15,6 @@
 #'         - `data_frame_files`: A list mapping data frame names to their respective file paths.
 #'         Returns `NULL` if an error occurs.
 #'
-#' @importFrom utils tryCatch
 #' @noRd
 safely_read_data <- function(folder_path, device_type, env,
                              skip_rows, valid_patterns = NULL) {

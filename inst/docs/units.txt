@@ -1,0 +1,48 @@
+MC-100 Chlorophyll Concentration Meter Measurement Units:
+
+
+Species Name          Data File Notation
+---------------------------------------
+Annual Crop Species:
+Arugula               Argl
+Barley                Baly
+Blackberry            Blkb
+Cannabis              Cnbs
+Cherry                Chry
+Coffee                Cofe
+Collard Greens        CGrn
+Corn                  Maze
+Kale                  Kale
+Kohlrabi              Klrb
+Lettuce – Buttercrunch BcLt
+Lettuce – Romaine     Rman
+Lettuce – Waldman’s Green WGLt
+Pea                   Pea
+Pepper                Pepr
+Rice                  Rice
+Sorghum               Srgm
+Soybean               SyBn
+Spinach               Spnc
+Strawberry            Strw
+Swiss Chard           SwCd
+Tomato                Tomt
+Wheat                 Whet
+
+Deciduous Species:
+Boxelder              BxEl
+Crab Apple            CbAp
+Crimson King Maple    CKMp
+European Birch        EuBr
+Forsythia             Frsy
+Grapevine             Grap
+Hops                  Hops
+Japanese Maple        JpMp
+Lilac                 Lilc
+Norway Maple          NwMp
+Paper Birch           PpBr
+Purple Leaf Sand Cherry PLSC
+Quaking Aspen         QkAp
+
+Additional Options:
+- Generic Conversion (all data combined) : Gnrc
+- Conversion to SPAD units               : Spad

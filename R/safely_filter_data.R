@@ -4,12 +4,11 @@
 #' encountered during the filtering process are logged into the provided environment.
 #'
 #' @param all_data A data frame or list of data frames to be filtered.
-#' @param variable description
+#' @param variable The variable name to process (e.g. NDVI).
 #' @param env An environment object used for logging warnings or errors during the process.
 #'
 #' @return Returns the filtered data, or `NULL` if an error occurs during the filtering process.
 #'
-#' @importFrom utils tryCatch
 #' @noRd
 safely_filter_data <- function(all_data, variable, env) {
  tryCatch({

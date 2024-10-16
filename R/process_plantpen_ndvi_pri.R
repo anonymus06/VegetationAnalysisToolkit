@@ -4,7 +4,7 @@
 #'
 #' @param folder_path The path to the folder containing the input data files.
 #' @param output The directory where the processed data will be saved.
-#' @param device_type
+#' @param device_type A character string specifying the type of data ("PPNP" for PlantPen or "MC100" for MC-100).
 #' @param lower_limit The lower limit for values.
 #' @param upper_limit The upper limit for values.
 #' @param variable The variable name to process (e.g. NDVI).

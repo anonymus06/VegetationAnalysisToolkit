@@ -109,4 +109,3 @@ setup_project_directory <- function(project_dir = "VegetationAnalysisToolkit_Pro
 
  return(normalizePath(project_dir))
 }
-

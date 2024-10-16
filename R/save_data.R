@@ -17,7 +17,6 @@
 #' and the filtering process.
 #'
 #' @importFrom openxlsx createWorkbook addWorksheet writeData saveWorkbook
-#' @importFrom utils getwd
 #' @noRd
 save_data <- function(df, output, device_type, lower_limit, upper_limit, split_code, env, variable) {
  if (device_type == "PPNP") {

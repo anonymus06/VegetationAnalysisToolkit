@@ -4,15 +4,15 @@
 #' encountered during the filtering process are logged into the provided environment.
 #'
 #' @param all_data A data frame or list of data frames to be filtered.
-#' @param device_type description
-#' @param split_code description
+#' @param device_type A character string specifying the type of data ("PPNP" for PlantPen or "MC100" for MC-100).
+#' @param split_code Logical. If `TRUE`, the measurement codes will be split based on a configuration file.
 #' @param env An environment object used for logging warnings or errors during the process.
-#' @param variable description
-#' @param folder_path description
+#' @param variable The variable name to process (e.g. NDVI).
+#' @param folder_path The path to the folder containing the input data files.
 #'
-#' @return
+#' @return The processed data frame (or list of data frames) if successful.
+#' If an error occurs, the function returns `NULL`.
 #'
-#' @importFrom utils tryCatch
 #' @noRd
 safely_map_data <- function(all_data, device_type, split_code, env, variable = NULL, folder_path) {
  tryCatch({
