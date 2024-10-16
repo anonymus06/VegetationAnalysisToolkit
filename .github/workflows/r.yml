@@ -1,0 +1,64 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+#
+# See https://github.com/r-lib/actions/tree/master/examples#readme for
+# additional example workflows available for the R community.
+
+name: R CI Lint, Style, and Test
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        r-version: ['4.3.3']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Setup R version
+      - name: Set up R ${{ matrix.r-version }}
+        uses: r-lib/actions/setup-r@f57f1301a053485946083d7a45022b278929a78a
+        with:
+          r-version: ${{ matrix.r-version }}
+          
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          install.packages(c("remotes", "rcmdcheck", "lintr", "styler", "testthat"))
+          remotes::install_deps(dependencies = TRUE)
+        shell: Rscript {0}
+
+      # Check package
+      - name: Check
+        run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")
+        shell: Rscript {0}
+
+      # Lint the R files with lintr
+      - name: Run lintr
+        run: |
+          lintr::lint_package()
+        shell: Rscript {0}
+
+      # Check code style with styler
+      - name: Check code style with styler
+        run: |
+          styler::style_pkg()
+        shell: Rscript {0}
+
+      # Run tests with testthat
+      - name: Run tests
+        run: |
+          testthat::test_dir("tests/testthat") # Specify the path to your tests
+        shell: Rscript {0}
