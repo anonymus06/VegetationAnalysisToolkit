@@ -60,5 +60,5 @@ jobs:
       # Run tests with testthat
       - name: Run tests
         run: |
-          testthat::test_dir("tests/testthat") # Specify the path to your tests
+          testthat::test_dir("tests/testthat")
         shell: Rscript {0}
