@@ -48,13 +48,13 @@ jobs:
       # Lint the R files with lintr
       - name: Run lintr
         run: |
-          lintr::lint_package()
+          Rscript -e "lintr::lint_package()"
         shell: Rscript {0}
 
       # Check code style with styler
       - name: Check code style with styler
         run: |
-          styler::style_pkg()
+          Rscript -e "styler::style_pkg(style = tidyverse_style(strict = TRUE))"
         shell: Rscript {0}
 
       # Run tests with testthat
