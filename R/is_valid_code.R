@@ -18,15 +18,15 @@
 #' @importFrom stringr str_split
 #' @noRd
 is_valid_code <- function(code, positionPattern, landusePattern, interRowConditions) {
- position_elements <- str_split(positionPattern, "\\|", simplify = TRUE)
- landuse_elements <- str_split(landusePattern, "\\|", simplify = TRUE)
- extract_elements <- if (!is.null(interRowConditions)) {
-  unique(unlist(lapply(interRowConditions, function(cond) cond$extract)))
- } else {
-  character(0)
- }
- valid_elements <- c(position_elements, landuse_elements, extract_elements)
- combined_pattern <- paste0("^(", paste(valid_elements, collapse = "|"), ")+$")
+  position_elements <- str_split(positionPattern, "\\|", simplify = TRUE)
+  landuse_elements <- str_split(landusePattern, "\\|", simplify = TRUE)
+  extract_elements <- if (!is.null(interRowConditions)) {
+    unique(unlist(lapply(interRowConditions, function(cond) cond$extract)))
+  } else {
+    character(0)
+  }
+  valid_elements <- c(position_elements, landuse_elements, extract_elements)
+  combined_pattern <- paste0("^(", paste(valid_elements, collapse = "|"), ")+$")
 
- return(grepl(combined_pattern, code))
+  return(grepl(combined_pattern, code))
 }

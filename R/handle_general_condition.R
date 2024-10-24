@@ -9,7 +9,7 @@
 #'          If the condition is a warning, it re-issues the warning using `warning`.
 #' @noRd
 handle_general_condition <- function(cond, type = "error", env) {
- msg <- paste(type, ":", conditionMessage(cond))
- log_general_issue(msg)
- env$all_issues <- append(env$all_issues, list(msg))
+  msg <- paste(type, ":", conditionMessage(cond))
+  log_general_issue(msg)
+  env$all_issues <- append(env$all_issues, list(msg))
 }

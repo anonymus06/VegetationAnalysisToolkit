@@ -12,11 +12,11 @@
 #' @importFrom utils read.csv
 #' @noRd
 handle_CSV_file <- function(file) {
- data <- list()
- files <- list()
- sheets <- read.csv(file, sep = ";", header = TRUE, encoding = "UTF-8", check.names = FALSE)
- data[[basename(file)]] <- sheets
- files[[basename(file)]] <- file
+  data <- list()
+  files <- list()
+  sheets <- read.csv(file, sep = ";", header = TRUE, encoding = "UTF-8", check.names = FALSE)
+  data[[basename(file)]] <- sheets
+  files[[basename(file)]] <- file
 
- return(list(data = data, files = files))
+  return(list(data = data, files = files))
 }

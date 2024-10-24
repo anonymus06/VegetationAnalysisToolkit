@@ -16,5 +16,5 @@
 #'
 #' @noRd
 add_message <- function(env, message, type = "info") {
- env$messages <- append(env$messages, list(list(message = message, type = type)))
+  env$messages <- append(env$messages, list(list(message = message, type = type)))
 }

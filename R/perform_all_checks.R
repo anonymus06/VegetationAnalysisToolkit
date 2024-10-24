@@ -40,24 +40,24 @@
 #' @return A list containing all issues found during validation. If no issues are found, an empty list is returned.
 #' @noRd
 perform_all_checks <- function(df, non_index_dfs, data_columns, index_columns, data_types, device_type, index_types, variable, data_frame_files) {
- local_issues <- list()
+  local_issues <- list()
 
- global_issues <- lapply(names(df), function(name) {
-  perform_global_checks(df, name, data_columns, index_columns, device_type, data_types, index_types, data_frame_files, list())
- })
- global_issues <- do.call(c, global_issues)
+  global_issues <- lapply(names(df), function(name) {
+    perform_global_checks(df, name, data_columns, index_columns, device_type, data_types, index_types, data_frame_files, list())
+  })
+  global_issues <- do.call(c, global_issues)
 
- core_issues <- lapply(names(non_index_dfs), function(name) {
-  perform_core_checks(non_index_dfs, name, variable, device_type, data_frame_files, local_issues)
- })
- core_issues <- do.call(c, core_issues)
+  core_issues <- lapply(names(non_index_dfs), function(name) {
+    perform_core_checks(non_index_dfs, name, variable, device_type, data_frame_files, local_issues)
+  })
+  core_issues <- do.call(c, core_issues)
 
- if(length(global_issues) > 0) {
-  local_issues <- c(local_issues, global_issues)
- }
- if(length(core_issues) > 0) {
-  local_issues <- c(local_issues, core_issues)
- }
+  if (length(global_issues) > 0) {
+    local_issues <- c(local_issues, global_issues)
+  }
+  if (length(core_issues) > 0) {
+    local_issues <- c(local_issues, core_issues)
+  }
 
- return(local_issues)
+  return(local_issues)
 }

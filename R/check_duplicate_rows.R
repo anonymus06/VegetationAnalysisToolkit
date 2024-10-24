@@ -11,13 +11,14 @@
 #'
 #' @noRd
 check_duplicate_rows <- function(current_df, name, file_name, local_issues) {
+  if (any(duplicated(current_df))) {
+    local_issues <-
+      add_issue(
+        local_issues,
+        name,
+        paste0("Duplicate rows found in the data. Source file: '", file_name, "'")
+      )
+  }
 
- if (any(duplicated(current_df))) {
-  local_issues <-
-   add_issue(local_issues,
-             name,
-             paste0("Duplicate rows found in the data. Source file: '", file_name, "'"))
- }
-
- return(local_issues)
+  return(local_issues)
 }

@@ -15,14 +15,15 @@
 #'         - `files`: A named list mapping sheet names to the file path.
 #'
 #' @importFrom openxlsx getSheetNames loadWorkbook read.xlsx
+#' @importFrom stats setNames
 #' @noRd
 handle_excel_file <- function(file) {
- sheets <- getSheetNames(file)
- wb <- loadWorkbook(file)
- sheet_data <- lapply(sheets, function(sheet) {
-  read.xlsx(wb, sheet = sheet, startRow = 1)
- })
- names(sheet_data) <- sheets
+  sheets <- getSheetNames(file)
+  wb <- loadWorkbook(file)
+  sheet_data <- lapply(sheets, function(sheet) {
+    read.xlsx(wb, sheet = sheet, startRow = 1)
+  })
+  names(sheet_data) <- sheets
 
- return(list(data = sheet_data, files = setNames(rep(file, length(sheets)), sheets)))
+  return(list(data = sheet_data, files = setNames(rep(file, length(sheets)), sheets)))
 }

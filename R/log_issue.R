@@ -12,6 +12,6 @@
 #'
 #' @noRd
 log_issue <- function(file, issue, env) {
- message <- paste("Issue with file:", file, "-", issue)
- handle_general_condition(simpleError(message), "warning", env)
+  message <- paste("Issue with file:", file, "-", issue)
+  handle_general_condition(simpleError(message), "warning", env)
 }

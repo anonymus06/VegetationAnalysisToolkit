@@ -8,13 +8,14 @@
 ^\.Ruserdata$
 ^inst/extdata/mc100_chlorophyll_data/original$
 ^inst/extdata/plantpen_ndvi_pri_data/original$
+^inst/extdata/mc100_chlorophyll_data/selected$
 ^inst/extdata/plantpen_ndvi_pri_data/selected$
 ^inst/extdata/mc100_chlorophyll_data/error-test$
 ^inst/extdata/plantpen_ndvi_pri_data/error-test$
-^inst/extdata/plantpen_ndvi_pri_data/selected$
 ^out$
 ^developer_tools$
 ^error_log.txt$
 ^val_issues.txt$
 ^build$
 ^VegetationAnalysisToolkit_Project$
+^vignettes/.gitignore$

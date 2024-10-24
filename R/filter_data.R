@@ -18,14 +18,14 @@
 #' during data pre-processing to avoid issues with the column indexing.
 #'
 #' @noRd
-filter_data <- function(df, variable){
- var_col_index <- which(names(df[[length(df)]]) == variable)
+filter_data <- function(df, variable) {
+  var_col_index <- which(names(df[[length(df)]]) == variable)
 
- if (length(var_col_index) == 0) {
-  message(paste0(variable, "column not found in the dataset. Returning NULL."))
-  return(NULL)
- }
+  if (length(var_col_index) == 0) {
+    message(paste0(variable, "column not found in the dataset. Returning NULL."))
+    return(NULL)
+  }
 
- df[[length(df)]] <- df[[length(df)]][, 1:var_col_index]
- return(df)
+  df[[length(df)]] <- df[[length(df)]][, 1:var_col_index]
+  return(df)
 }

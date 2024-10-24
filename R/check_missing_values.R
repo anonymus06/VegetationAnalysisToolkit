@@ -12,14 +12,16 @@
 #'
 #' @noRd
 check_missing_values <- function(current_df, name, file_name, local_issues) {
- current_df[current_df == ""] <- NA
+  current_df[current_df == ""] <- NA
 
- if (any(colSums(is.na(current_df)) > 0)) {
-  local_issues <-
-   add_issue(local_issues,
-             name,
-             paste0("Missing values found in one or more columns. Source file: '", file_name, "'"))
- }
+  if (any(colSums(is.na(current_df)) > 0)) {
+    local_issues <-
+      add_issue(
+        local_issues,
+        name,
+        paste0("Missing values found in one or more columns. Source file: '", file_name, "'")
+      )
+  }
 
- return(local_issues)
+  return(local_issues)
 }

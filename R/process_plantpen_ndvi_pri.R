@@ -38,36 +38,34 @@
 #'
 #' @examples
 #' \dontrun{
-#' # Consult the vignette using:
 #' vignette("VegetationAnalysisToolkit")
 #' }
-#' # To process NDVI data with specific parameters:
 #' \dontrun{
 #' process_PlantPen_NDVI_PRI("path/to/ndvi_data", "path/to/output", 0.1, 0.9, "NDVI", TRUE)
 #' }
 #' @export
 process_PlantPen_NDVI_PRI <- function(folder_path, output, device_type = "PPNP",
-                                      lower_limit, upper_limit, variable, validate, split_code=FALSE) {
- env <- setup_general_warnings_env()
- validation_failed <- FALSE
+                                      lower_limit, upper_limit, variable, validate, split_code = FALSE) {
+  env <- setup_general_warnings_env()
+  validation_failed <- FALSE
 
- read_data_action <- function() safely_read_data(folder_path, device_type, env)
- filter_data_action <- function() safely_filter_data(loaded_data$all_data, variable, env)
- map_data_action <- function() safely_map_data(all_data, device_type, split_code, env, variable, folder_path)
- save_data_action <- function() safely_save_data(all_data, output, device_type, lower_limit, upper_limit, split_code, env, variable)
+  read_data_action <- function() safely_read_data(folder_path, device_type, env)
+  filter_data_action <- function() safely_filter_data(loaded_data$all_data, variable, env)
+  map_data_action <- function() safely_map_data(all_data, device_type, split_code, env, variable, folder_path)
+  save_data_action <- function() safely_save_data(all_data, output, device_type, lower_limit, upper_limit, split_code, env, variable)
 
- loaded_data <- with_error_handling(read_data_action)
- all_data <- with_error_handling(filter_data_action)
+  loaded_data <- with_error_handling(read_data_action)
+  all_data <- with_error_handling(filter_data_action)
 
- if (validate) {
-  validation_failed <- !perform_validation(all_data, device_type, loaded_data$data_frame_files, variable, env)
- }
+  if (validate) {
+    validation_failed <- !perform_validation(all_data, device_type, loaded_data$data_frame_files, variable, env)
+  }
 
- if (!validation_failed) {
-  all_data <- with_error_handling(map_data_action)
-  with_error_handling(save_data_action)
- }
+  if (!validation_failed) {
+    all_data <- with_error_handling(map_data_action)
+    with_error_handling(save_data_action)
+  }
 
- summarize_and_log_issues(env, validation_run = validate)
- print_collected_messages(env, lower_limit, upper_limit, variable, device_name = "PlantPen NDVI & PRI", split_code, validate)
+  summarize_and_log_issues(env, validation_run = validate)
+  print_collected_messages(env, lower_limit, upper_limit, variable, device_name = "PlantPen NDVI & PRI", split_code, validate)
 }

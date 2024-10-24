@@ -13,48 +13,49 @@
 #'
 #' @noRd
 check_null_empty_cols <- function(current_df, name, data_columns, file_name, local_issues) {
+  if (is.null(current_df)) {
+    local_issues <-
+      add_issue(
+        local_issues,
+        name,
+        paste0("The data frame '", name, "' does not exist or is NULL. Source file: '", file_name, "'")
+      )
+    return(local_issues)
+  }
 
- if (is.null(current_df)) {
-  local_issues <-
-   add_issue(local_issues,
-             name,
-             paste0("The data frame '", name, "' does not exist or is NULL. Source file: '", file_name, "'"))
+  if (nrow(current_df) == 0) {
+    local_issues <-
+      add_issue(
+        local_issues,
+        name,
+        paste0("The data frame '", name, "' is empty. Source file: '", file_name, "'")
+      )
+    return(local_issues)
+  }
+
+  if (ncol(current_df) == length(data_columns)) {
+    # Handle data
+  } else if (ncol(current_df) == 2) {
+    # Handle Index file
+  } else {
+    local_issues <- add_issue(
+      local_issues,
+      name,
+      paste0(
+        "The data frame '",
+        name,
+        "' does not match any expected number of columns. ",
+        "Detected dimensions: ",
+        ncol(current_df),
+        " columns. ",
+        "Expected dimensions for data file: ",
+        length(data_columns), ". ",
+        "Expected dimensions for Index file: ",
+        2, ". Source file: '", file_name, "'"
+      )
+    )
+    return(local_issues)
+  }
+
   return(local_issues)
- }
-
- if (nrow(current_df) == 0) {
-  local_issues <-
-   add_issue(local_issues,
-             name,
-             paste0("The data frame '", name, "' is empty. Source file: '", file_name, "'"
-                    )
-             )
-  return(local_issues)
- }
-
- if (ncol(current_df) == length(data_columns)) {
-  # Handle data
- } else if (ncol(current_df) == 2) {
-  # Handle Index file
- } else {
-  local_issues <- add_issue(
-   local_issues,
-   name,
-   paste0(
-    "The data frame '",
-    name,
-    "' does not match any expected number of columns. ",
-    "Detected dimensions: ",
-    ncol(current_df),
-    " columns. ",
-    "Expected dimensions for data file: ",
-    length(data_columns), ". ",
-    "Expected dimensions for Index file: ",
-    2, ". Source file: '", file_name, "'"
-   )
-  )
-  return(local_issues)
- }
-
- return(local_issues)
 }

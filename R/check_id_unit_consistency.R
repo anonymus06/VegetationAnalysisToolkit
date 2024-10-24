@@ -14,23 +14,20 @@
 #'
 #' @noRd
 check_id_unit_consistency <- function(current_df, name, variable, file_name, local_issues) {
-
- if (names(current_df)[1] == "index" &&
-     (any(current_df$id != variable))) {
-  local_issues <-
-   add_issue(local_issues,
-             name,
-             paste0("ID column contains values other than '", variable, "'. Source file: '", file_name, "'")
-   )
-
- } else if (names(current_df)[1] == "Sample" &&
-            (any(current_df$Units != variable))) {
-  local_issues <-
-   add_issue(local_issues,
-             name,
-             paste0("Units column contains values other than '", variable, "'. Source file: '", file_name, "'")
-   )
- }
- return(local_issues)
-
+  if (names(current_df)[1] == "index" && (any(current_df$id != variable))) {
+    local_issues <-
+      add_issue(
+        local_issues,
+        name,
+        paste0("ID column contains values other than '", variable, "'. Source file: '", file_name, "'")
+      )
+  } else if (names(current_df)[1] == "Sample" && (any(current_df$Units != variable))) {
+    local_issues <-
+      add_issue(
+        local_issues,
+        name,
+        paste0("Units column contains values other than '", variable, "'. Source file: '", file_name, "'")
+      )
+  }
+  return(local_issues)
 }

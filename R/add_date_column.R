@@ -20,17 +20,18 @@
 #'
 #' @noRd
 add_date_column <- function(df, date_str) {
- if (grepl("\\d{6}\\d{2}", date_str)) {
-  df$Date <- as.Date(substr(date_str, 1, 6), format = "%y%m%d")
- } else if (grepl("\\d{6}", date_str)) {
-  df$Date <- as.Date(date_str, format = "%y%m%d")
- } else {
-  df$Date <- NA
-  warning(
-   "Unable to assign dates to all data entries! Date string format unrecognized for: ",
-   date_str, ". Date column set to NA.")
-  # warning("Unable to assign dates to all data entries! Ensure your input file names conform to the expected formats and try to run the code again!")
- }
+  if (grepl("\\d{6}\\d{2}", date_str)) {
+    df$Date <- as.Date(substr(date_str, 1, 6), format = "%y%m%d")
+  } else if (grepl("\\d{6}", date_str)) {
+    df$Date <- as.Date(date_str, format = "%y%m%d")
+  } else {
+    df$Date <- NA
+    warning(
+      "Unable to assign dates to all data entries! Date string format unrecognized for: ",
+      date_str, ". Date column set to NA."
+    )
+    # warning("Unable to assign dates to all data entries! Ensure your input file names conform to the expected formats and try to run the code again!")
+  }
 
- return(df)
+  return(df)
 }

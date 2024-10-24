@@ -19,22 +19,24 @@
 #' @importFrom utils read.table
 #' @noRd
 handle_text_file <- function(file, skip_rows = 4, env) {
- data <- list()
- files <- list()
+  data <- list()
+  files <- list()
 
-  tryCatch({
-  sheet_data <- read.table(file, header = TRUE, sep = "\t", skip = 4)
-  data[[basename(file)]] <- sheet_data
-  files[[basename(file)]] <- file
- }, error = function(e) {
-  data[[basename(file)]] <- NULL
-  files[[basename(file)]] <- file
-  if (is.null(data[[basename(file)]])) {
-   add_message(env, "The data frame does not exist or is NULL.", "issues")
-  }
-  add_message(env, paste("Error reading file:", file, "-", e$message), "issues")
+  tryCatch(
+    {
+      sheet_data <- read.table(file, header = TRUE, sep = "\t", skip = 4)
+      data[[basename(file)]] <- sheet_data
+      files[[basename(file)]] <- file
+    },
+    error = function(e) {
+      data[[basename(file)]] <- NULL
+      files[[basename(file)]] <- file
+      if (is.null(data[[basename(file)]])) {
+        add_message(env, "The data frame does not exist or is NULL.", "issues")
+      }
+      add_message(env, paste("Error reading file:", file, "-", e$message), "issues")
+    }
+  )
 
- })
-
- return(list(data = data, files = files))
+  return(list(data = data, files = files))
 }

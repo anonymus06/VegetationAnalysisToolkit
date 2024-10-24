@@ -13,16 +13,16 @@
 #'
 #' @noRd
 perform_core_checks <- function(df, name, variable, device_type, data_frame_files, local_issues) {
- current_df <- df[[name]]
- file_name <- data_frame_files[[name]]
+  current_df <- df[[name]]
+  file_name <- data_frame_files[[name]]
 
- result <- process_dataframe(as.data.frame(current_df))
- current_df <- result$current_df
- current_df_old <- result$current_df_old
+  result <- process_dataframe(as.data.frame(current_df))
+  current_df <- result$current_df
+  current_df_old <- result$current_df_old
 
- local_issues <- check_index_sequence(current_df, current_df_old, name, device_type, file_name, local_issues)
- local_issues <- check_datetime_format(current_df, name, file_name, local_issues)
- local_issues <- check_id_unit_consistency(current_df, name, variable, file_name, local_issues)
+  local_issues <- check_index_sequence(current_df, current_df_old, name, device_type, file_name, local_issues)
+  local_issues <- check_datetime_format(current_df, name, file_name, local_issues)
+  local_issues <- check_id_unit_consistency(current_df, name, variable, file_name, local_issues)
 
- return(local_issues)
+  return(local_issues)
 }

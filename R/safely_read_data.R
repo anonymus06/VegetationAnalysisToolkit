@@ -18,14 +18,18 @@
 #' @noRd
 safely_read_data <- function(folder_path, device_type, env,
                              skip_rows, valid_patterns = NULL) {
- tryCatch({
-  result <- read_data(folder_path, device_type, env, skip_rows, valid_patterns)
-  return(result)
- }, error = function(e) {
-  handle_general_condition(e, "error", env)
-  return(NULL)
- }, warning = function(w) {
-  handle_general_condition(w, "warning", env)
-  # invokeRestart("muffleWarning")
- })
+  tryCatch(
+    {
+      result <- read_data(folder_path, device_type, env, skip_rows, valid_patterns)
+      return(result)
+    },
+    error = function(e) {
+      handle_general_condition(e, "error", env)
+      return(NULL)
+    },
+    warning = function(w) {
+      handle_general_condition(w, "warning", env)
+      # invokeRestart("muffleWarning")
+    }
+  )
 }

@@ -12,19 +12,23 @@
 #' @return A logical value indicating whether the data is valid (`TRUE` if valid, `FALSE` if validation failed).
 #' @noRd
 perform_validation <- function(df, device_type, data_frame_files, variable, env) {
- validation_result <- withCallingHandlers({
-  check_data(df, device_type, data_frame_files, variable)
- }, warning = function(w) {
-  handle_general_condition(w, "warning", env)
- }, error = function(e) {
-  handle_general_condition(e, "error", env)
- })
+  validation_result <- withCallingHandlers(
+    {
+      check_data(df, device_type, data_frame_files, variable)
+    },
+    warning = function(w) {
+      handle_general_condition(w, "warning", env)
+    },
+    error = function(e) {
+      handle_general_condition(e, "error", env)
+    }
+  )
 
- if (length(validation_result$validation_warnings) > 0) {
-  log_validation_issues(validation_result$validation_warnings, env)
- } else {
-  add_message(env, "Validation completed without any known issues. Note: Not all potential issues are checked.", "issues")
- }
+  if (length(validation_result$validation_warnings) > 0) {
+    log_validation_issues(validation_result$validation_warnings, env)
+  } else {
+    add_message(env, "Validation completed without any known issues. Note: Not all potential issues are checked.", "issues")
+  }
 
- return(validation_result$is_valid)
+  return(validation_result$is_valid)
 }

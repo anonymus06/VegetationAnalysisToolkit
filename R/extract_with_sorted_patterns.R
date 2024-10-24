@@ -16,21 +16,20 @@
 #' text <- "This is a sample text"
 #' pattern <- "sample|text|is|a"
 #' result <- extract_with_sorted_patterns(text, pattern)
-#' print(result)  # Output: "sample"
+#' print(result) # Output: "sample"
 #' }
 #'
-#' @importFrom stringr str_extract
+#' @importFrom stringr str_detect
 #' @noRd
 extract_with_sorted_patterns <- function(text, pattern) {
- pattern_list <- unlist(strsplit(pattern, "\\|"))
- sorted_patterns <- pattern_list[order(nchar(pattern_list), decreasing = TRUE)]
- sorted_pattern <- paste(sorted_patterns, collapse = "|")
+  pattern_list <- unlist(strsplit(pattern, "\\|"))
+  sorted_patterns <- pattern_list[order(nchar(pattern_list), decreasing = TRUE)]
 
- for (p in sorted_patterns) {
-  if (str_detect(text, p)) {
-   return(p)
+  for (p in sorted_patterns) {
+    if (str_detect(text, p)) {
+      return(p)
+    }
   }
- }
 
- return(NA)
+  return(NA)
 }

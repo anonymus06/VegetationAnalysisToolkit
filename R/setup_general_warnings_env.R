@@ -8,8 +8,8 @@
 #'          to add issues and messages dynamically, which can later be retrieved or processed as needed.
 #' @noRd
 setup_general_warnings_env <- function() {
- env <- new.env()
- env$all_issues <- list()
- env$messages <- list()
- return(env)
+  env <- new.env()
+  env$all_issues <- list()
+  env$messages <- list()
+  return(env)
 }

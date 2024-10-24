@@ -23,24 +23,25 @@
 #'
 #' @noRd
 read_simple_config <- function(file) {
- lines <- readLines(file)
- config <- list(
-  positionPattern = lines[1],
-  landusePattern = lines[2]
- )
+  lines <- readLines(file)
+  config <- list(
+    positionPattern = lines[1],
+    landusePattern = lines[2]
+  )
 
- if (tolower(lines[3]) != "na") {
-  landuse_patterns <- unlist(strsplit(lines[3], "|", fixed = TRUE))
-  interRowConditions <- lapply(landuse_patterns, function(pat) {
-   list(
-    pattern = pat,
-    default = ifelse(is.na(lines[4]), NA, lines[4]),
-    extract = ifelse(is.na(lines[5]), NA, lines[5]))
-  })
-  config$interRowConditions <- interRowConditions
- } else {
-  config$interRowConditions <- NULL
- }
+  if (tolower(lines[3]) != "na") {
+    landuse_patterns <- unlist(strsplit(lines[3], "|", fixed = TRUE))
+    interRowConditions <- lapply(landuse_patterns, function(pat) {
+      list(
+        pattern = pat,
+        default = ifelse(is.na(lines[4]), NA, lines[4]),
+        extract = ifelse(is.na(lines[5]), NA, lines[5])
+      )
+    })
+    config$interRowConditions <- interRowConditions
+  } else {
+    config$interRowConditions <- NULL
+  }
 
- return(config)
+  return(config)
 }

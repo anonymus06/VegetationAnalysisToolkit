@@ -11,14 +11,14 @@
 #' @importFrom dplyr rename_with everything %>%
 #' @noRd
 split_columns <- function(input_data) {
- split_columns <- lapply(strsplit(input_data[, 1], ","), function(x) trimws(x))
- split_df <- data.frame(do.call(rbind, split_columns), stringsAsFactors = FALSE)
+  split_columns <- lapply(strsplit(input_data[, 1], ","), function(x) trimws(x))
+  split_df <- data.frame(do.call(rbind, split_columns), stringsAsFactors = FALSE)
 
- input_vector <- colnames(input_data)
- parts <- unlist(strsplit(input_vector, ","))[unlist(strsplit(input_vector, ",")) != ""]
+  input_vector <- colnames(input_data)
+  parts <- unlist(strsplit(input_vector, ","))[unlist(strsplit(input_vector, ",")) != ""]
 
- split_df <- split_df %>%
-  rename_with(~ parts, everything())
+  split_df <- split_df %>%
+    rename_with(~parts, everything())
 
- return(split_df)
+  return(split_df)
 }

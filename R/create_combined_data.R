@@ -15,26 +15,26 @@
 #'
 #'
 #' @importFrom dplyr bind_rows filter select
+#' @importFrom rlang sym
 #' @noRd
 create_combined_data <- function(all_data, variable, apply_data_filter = FALSE, lower_limit = NULL, upper_limit = NULL, split_code) {
+  combined_df <- bind_rows(all_data)
 
- combined_df <- bind_rows(all_data)
+  if (split_code) {
+    combined_df <- combined_df %>%
+      select(-index) %>%
+      select(Date, Code, Position, Landuse, InterRow, !!sym(variable))
+  } else {
+    combined_df <- combined_df %>%
+      select(-index) %>%
+      select(Date, Code, !!sym(variable))
+  }
 
- if(split_code) {
-  combined_df <- combined_df %>%
-   select(-index) %>%
-   select(Date, Code, Position, Landuse, InterRow, !!sym(variable))
- } else {
-  combined_df <- combined_df %>%
-   select(-index) %>%
-   select(Date, Code, !!sym(variable))
- }
+  if (apply_data_filter && !is.null(lower_limit) && !is.null(upper_limit)) {
+    combined_df <- combined_df %>%
+      filter(!!sym(variable) > lower_limit) %>%
+      filter(!!sym(variable) < upper_limit)
+  }
 
- if (apply_data_filter && !is.null(lower_limit) && !is.null(upper_limit)) {
-  combined_df <- combined_df %>%
-   filter(!!sym(variable) > lower_limit) %>%
-   filter(!!sym(variable) < upper_limit)
- }
-
- return(combined_df)
+  return(combined_df)
 }

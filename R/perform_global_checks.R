@@ -26,16 +26,15 @@
 #'
 #' @noRd
 perform_global_checks <- function(df, name, data_columns, index_columns, device_type, data_types,
-                                  index_types, data_frame_files, local_issues){
+                                  index_types, data_frame_files, local_issues) {
+  current_df <- df[[name]]
+  file_name <- data_frame_files[[name]]
 
- current_df <- df[[name]]
- file_name <- data_frame_files[[name]]
+  local_issues <- check_null_empty_cols(current_df, name, data_columns, file_name, local_issues)
+  local_issues <- check_column_names(current_df, name, device_type, data_columns, index_columns, file_name, local_issues)
+  local_issues <- check_data_types(current_df, name, data_types, index_types, file_name, local_issues)
+  local_issues <- check_missing_values(current_df, name, file_name, local_issues)
+  local_issues <- check_duplicate_rows(current_df, name, file_name, local_issues)
 
- local_issues <- check_null_empty_cols(current_df, name, data_columns, file_name, local_issues)
- local_issues <- check_column_names(current_df, name, device_type, data_columns, index_columns, file_name, local_issues)
- local_issues <- check_data_types(current_df, name, data_types, index_types, file_name, local_issues)
- local_issues <- check_missing_values(current_df, name, file_name, local_issues)
- local_issues <- check_duplicate_rows(current_df, name, file_name, local_issues)
-
- return(local_issues)
+  return(local_issues)
 }

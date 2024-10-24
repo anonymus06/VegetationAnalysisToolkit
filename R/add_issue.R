@@ -16,6 +16,6 @@
 #'
 #' @noRd
 add_issue <- function(issues, name, issue_message) {
- issues[[name]] <- c(issues[[name]], issue_message)
- return(issues)
+  issues[[name]] <- c(issues[[name]], issue_message)
+  return(issues)
 }

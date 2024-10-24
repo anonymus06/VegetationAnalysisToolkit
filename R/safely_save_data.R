@@ -18,13 +18,17 @@
 #' @noRd
 safely_save_data <- function(df, output, device_type,
                              lower_limit, upper_limit, split_code, env, variable) {
- tryCatch({
-  save_data(df, output, device_type, lower_limit, upper_limit, split_code, env, variable)
- }, error = function(e) {
-  handle_general_condition(e, "error", env)
-  return(NULL)
- }, warning = function(w) {
-  handle_general_condition(w, "warning", env)
-  # invokeRestart("muffleWarning")
- })
+  tryCatch(
+    {
+      save_data(df, output, device_type, lower_limit, upper_limit, split_code, env, variable)
+    },
+    error = function(e) {
+      handle_general_condition(e, "error", env)
+      return(NULL)
+    },
+    warning = function(w) {
+      handle_general_condition(w, "warning", env)
+      # invokeRestart("muffleWarning")
+    }
+  )
 }

@@ -24,17 +24,17 @@ library(VegetationAnalysisToolkit)
 
 # 2. Define Parameters
 # Set the directory paths and filename for processing
-folder_path <- "inst/extdata/plantpen_ndvi_pri_data/"
-# folder_path <- "inst/extdata/mc100_chlorophyll_data/"
+folder_path <- system.file("extdata", "plantpen_ndvi_pri_data", package = "VegetationAnalysisToolkit")
+# folder_path <- system.file("extdata", "mc100_chlorophyll_data", package = "VegetationAnalysisToolkit")
 output_dir <- "out/"
 
 # 3. Process NDVI Data
 # The NDVI data reflects the plant's vigor and canopy structure.
 process_PlantPen_NDVI_PRI(folder_path, output,
                           lower_limit = 0.0, upper_limit = 1.0,
-                          variable="NDVI",
-                          validate=FALSE,
-                          split_code=TRUE)
+                          variable = "NDVI",
+                          validate = FALSE,
+                          split_code = TRUE)
 
 # 4. Process Chlorophyll Data
 # Leaf chlorophyll content was used to evaluate grapevine health.

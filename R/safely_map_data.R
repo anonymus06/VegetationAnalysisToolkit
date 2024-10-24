@@ -15,13 +15,17 @@
 #'
 #' @noRd
 safely_map_data <- function(all_data, device_type, split_code, env, variable = NULL, folder_path) {
- tryCatch({
-  map_all_data(all_data, split_code, env, variable, device_type, folder_path)
- }, error = function(e) {
-  handle_general_condition(e, "error", env)
-  return(NULL)
- }, warning = function(w) {
-  handle_general_condition(w, "warning", env)
-  invokeRestart("muffleWarning")
- })
+  tryCatch(
+    {
+      map_all_data(all_data, split_code, env, variable, device_type, folder_path)
+    },
+    error = function(e) {
+      handle_general_condition(e, "error", env)
+      return(NULL)
+    },
+    warning = function(w) {
+      handle_general_condition(w, "warning", env)
+      invokeRestart("muffleWarning")
+    }
+  )
 }

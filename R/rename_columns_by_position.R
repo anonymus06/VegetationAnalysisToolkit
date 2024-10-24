@@ -8,12 +8,12 @@
 #'         otherwise returns NULL as an indication of a mismatch.
 #' @noRd
 rename_columns_by_position <- function(df, new_names) {
- num_columns <- length(df)
- if (num_columns == length(new_names)) {
-  names(df)[1:length(new_names)] <- new_names
- } else {
-  return(NULL)
- }
+  num_columns <- length(df)
+  if (num_columns == length(new_names)) {
+    names(df)[1:length(new_names)] <- new_names
+  } else {
+    return(NULL)
+  }
 
- return(df)
+  return(df)
 }

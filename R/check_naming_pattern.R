@@ -10,5 +10,5 @@
 #'
 #' @noRd
 check_naming_pattern <- function(file, valid_patterns) {
- any(sapply(valid_patterns, function(pattern) grepl(pattern, basename(file))))
+  any(sapply(valid_patterns, function(pattern) grepl(pattern, basename(file))))
 }

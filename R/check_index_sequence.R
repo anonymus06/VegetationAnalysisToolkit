@@ -15,34 +15,33 @@
 #'
 #' @noRd
 check_index_sequence <- function(current_df, current_df_old, name, device_type, file_name, local_issues) {
- if (device_type == "MC100") {
-  if (!check_sequential_index(current_df_old)) {
-   local_issues <-
-    add_issue(
-     local_issues,
-     name,
-     paste0(
-      "Non-sequential values detected in column 'Sample', dataset: '",
-      name,
-      "'. Source file: '", file_name, "'"
-     )
-    )
+  if (device_type == "MC100") {
+    if (!check_sequential_index(current_df_old)) {
+      local_issues <-
+        add_issue(
+          local_issues,
+          name,
+          paste0(
+            "Non-sequential values detected in column 'Sample', dataset: '",
+            name,
+            "'. Source file: '", file_name, "'"
+          )
+        )
+    }
+  } else if (device_type == "PPNP") {
+    if (any(diff(sort(as.numeric(current_df[["index"]]))) != 1)) {
+      local_issues <-
+        add_issue(
+          local_issues,
+          name,
+          paste0(
+            "Non-sequential values detected in column 'index', dataset: '",
+            name,
+            "' . Source file: '", file_name, "'"
+          )
+        )
+    }
   }
 
- } else if (device_type == "PPNP") {
-  if (any(diff(sort(as.numeric(current_df[["index"]]))) != 1)) {
-   local_issues <-
-    add_issue(
-     local_issues,
-     name,
-     paste0(
-      "Non-sequential values detected in column 'index', dataset: '",
-      name,
-      "' . Source file: '", file_name, "'"
-     )
-    )
-  }
- }
-
- return(local_issues)
+  return(local_issues)
 }

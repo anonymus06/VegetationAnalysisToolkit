@@ -11,14 +11,18 @@
 #'
 #' @noRd
 safely_filter_data <- function(all_data, variable, env) {
- tryCatch({
-  filtered_data <- filter_data(all_data, variable)
-  return(filtered_data)
- }, error = function(e) {
-  handle_general_condition(e, "error", env)
-  return(NULL)
- }, warning = function(w) {
-  handle_general_condition(w, "warning", env)
-  # invokeRestart("muffleWarning")
- })
+  tryCatch(
+    {
+      filtered_data <- filter_data(all_data, variable)
+      return(filtered_data)
+    },
+    error = function(e) {
+      handle_general_condition(e, "error", env)
+      return(NULL)
+    },
+    warning = function(w) {
+      handle_general_condition(w, "warning", env)
+      # invokeRestart("muffleWarning")
+    }
+  )
 }

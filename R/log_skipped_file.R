@@ -14,5 +14,5 @@
 #'
 #' @noRd
 log_skipped_file <- function(file, reason, env) {
- add_message(env, paste("Skipped", reason, "from reading:", file), "info")
+  add_message(env, paste("Skipped", reason, "from reading:", file), "info")
 }

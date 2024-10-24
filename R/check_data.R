@@ -13,75 +13,89 @@
 #'
 #' @noRd
 check_data <- function(df, device_type, data_frame_files, variable) {
- # ---- Initial Part Of Procedure ----
+  # ---- Initial Part Of Procedure ----
 
- if (device_type == "PPNP") {
-  data_columns <-
-   c("index",
-     "time",
-     "id",
-     "X760",
-     "X635",
-     "NDVI")
+  if (device_type == "PPNP") {
+    data_columns <-
+      c(
+        "index",
+        "time",
+        "id",
+        "X760",
+        "X635",
+        "NDVI"
+      )
 
-  index_columns <-
-   c("index",
-     "description")
+    index_columns <-
+      c(
+        "index",
+        "description"
+      )
 
-  data_types <-
-   c("integer",
-     "character",
-     "character",
-     "integer",
-     "integer",
-     "numeric")
+    data_types <-
+      c(
+        "integer",
+        "character",
+        "character",
+        "integer",
+        "integer",
+        "numeric"
+      )
 
-  index_types <-
-   c("numeric",
-     "character")
+    index_types <-
+      c(
+        "numeric",
+        "character"
+      )
+  } else if (device_type == "MC100") {
+    data_columns <-
+      c(
+        "Sample",
+        "Time/Date",
+        "Units",
+        "Reading",
+        "Lat",
+        "Lon",
+        "DOP",
+        "# Sat"
+      )
 
- } else if (device_type == "MC100") {
-  data_columns <-
-   c("Sample",
-     "Time/Date",
-     "Units",
-     "Reading",
-     "Lat",
-     "Lon",
-     "DOP",
-     "# Sat")
+    index_columns <-
+      c(
+        "index",
+        "description"
+      )
 
-  index_columns <-
-   c("index",
-     "description")
+    data_types <-
+      c("character")
 
-  data_types <-
-   c("character")
+    index_types <-
+      c(
+        "numeric",
+        "character"
+      )
+  } else {
+    stop("Unknown 'device_type' parameter in 'check_data() function!'")
+  }
 
-  index_types <-
-   c("numeric",
-     "character")
+  issues <- list()
+  result <- list(is_valid = TRUE, validation_warnings = list())
 
- } else {
-  stop("Unknown 'device_type' parameter in 'check_data() function!'")
- }
-
- issues <- list()
- result <- list(is_valid = TRUE, validation_warnings = list())
-
- index_files <- sapply(data_frame_files, is_index_file)
- non_index_dfs <- df[!index_files]
+  index_files <- sapply(data_frame_files, is_index_file)
+  non_index_dfs <- df[!index_files]
 
 
- # ---- Main Part Of Procedure ----
+  # ---- Main Part Of Procedure ----
 
- issues <- perform_all_checks(df, non_index_dfs, data_columns, index_columns, data_types, device_type,
-                              index_types, variable, data_frame_files)
+  issues <- perform_all_checks(
+    df, non_index_dfs, data_columns, index_columns, data_types, device_type,
+    index_types, variable, data_frame_files
+  )
 
- if (length(issues) > 0) {
-  result$is_valid <- FALSE
-  result$validation_warnings <- issues
- }
+  if (length(issues) > 0) {
+    result$is_valid <- FALSE
+    result$validation_warnings <- issues
+  }
 
- return(result)
+  return(result)
 }

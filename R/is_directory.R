@@ -8,14 +8,13 @@
 #'
 #' @noRd
 is_directory <- function(file) {
+  # Check if the file path is a directory
+  dir_check <- file.info(file)$isdir
 
- # Check if the file path is a directory
- dir_check <- file.info(file)$isdir
+  # Handle NA values (in case the file path does not exist)
+  if (is.na(dir_check)) {
+    return(FALSE)
+  }
 
- # Handle NA values (in case the file path does not exist)
- if (is.na(dir_check)) {
-  return(FALSE)
- }
-
- return(dir_check)
+  return(dir_check)
 }

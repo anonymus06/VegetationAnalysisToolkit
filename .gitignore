@@ -11,4 +11,3 @@ VegetationAnalysisToolkit_Project
 man/*.Rd
 .DS_Store
 *.tar.gz
-inst/extdata/*

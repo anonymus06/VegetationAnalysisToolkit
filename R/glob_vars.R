@@ -1,5 +1,5 @@
-
-# Global variables
-# utils::globalVariables(c("Code", "Filtered", "Total", "Removed", "Date", "Index", "Landuse", "CCI", "NDVI"))
-# if (getRversion() >= "2.15.1") utils::globalVariables(c(".", "InterRow", "index", "n"))
-# if (getRversion() >= "2.15.1") utils::globalVariables("Avg_NDVI")
+# Global variables (update when adding/removing variables)
+utils::globalVariables(c(
+ "Code", "Filtered", "Total", "Removed", "Date", "Index", "Landuse", "CCI", "NDVI",
+ "Max", "Min", "SD", "Mean", "Avg_VAR", "ValidCode", ".", "InterRow", "index", "n", "Avg_NDVI"
+))

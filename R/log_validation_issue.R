@@ -11,23 +11,26 @@
 #'
 #' @noRd
 log_validation_issue <- function(msg, log_file = "val_issues.txt") {
- timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
- con <- tryCatch({
-  file(log_file, open = "a")
- }, error = function(e) {
-  stop("Unable to open log file: ", log_file)
- })
- on.exit(close(con))
+  timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+  con <- tryCatch(
+    {
+      file(log_file, open = "a")
+    },
+    error = function(e) {
+      stop("Unable to open log file: ", log_file)
+    }
+  )
+  on.exit(close(con))
 
- if (is.character(msg)) {
-  message <- paste(timestamp, "-", msg)
-  writeLines(message, con = con)
- } else if (is.list(msg)) {
-  lapply(unlist(msg), function(m) {
-   message <- paste(timestamp, "-", gsub("\n", "\\n", m))
-   writeLines(message, con = con)
-  })
- } else {
-  warning("Message to log is neither character nor list.")
- }
+  if (is.character(msg)) {
+    message <- paste(timestamp, "-", msg)
+    writeLines(message, con = con)
+  } else if (is.list(msg)) {
+    lapply(unlist(msg), function(m) {
+      message <- paste(timestamp, "-", gsub("\n", "\\n", m))
+      writeLines(message, con = con)
+    })
+  } else {
+    warning("Message to log is neither character nor list.")
+  }
 }

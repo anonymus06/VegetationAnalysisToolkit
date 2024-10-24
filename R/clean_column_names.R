@@ -9,9 +9,9 @@
 #'
 #' @noRd
 clean_column_names <- function(col_names) {
- sapply(col_names, function(name) {
-  name <- gsub("[^[:alnum:]]", "", name)
-  name <- gsub("nm", "", name)
-  name
- })
+  sapply(col_names, function(name) {
+    name <- gsub("[^[:alnum:]]", "", name)
+    name <- gsub("nm", "", name)
+    name
+  })
 }

@@ -14,11 +14,11 @@
 #'         - `current_df_old`: The original data frame before processing.
 #' @noRd
 process_dataframe <- function(df) {
- if (ncol(df) == 1) { # (= MC-100 Chlorophyll data)
-  df <- split_columns(df)
- }
- df_old <- df
- df <- filter_rows_not_in_columns(df, names(df))
+  if (ncol(df) == 1) { # (= MC-100 Chlorophyll data)
+    df <- split_columns(df)
+  }
+  df_old <- df
+  df <- filter_rows_not_in_columns(df, names(df))
 
   return(list(current_df = df, current_df_old = df_old))
 }

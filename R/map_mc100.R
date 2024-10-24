@@ -19,31 +19,30 @@
 #' }
 #'
 #' @noRd
-map_MC100 <- function(data, split_code, env, variable, folder_path){
+map_MC100 <- function(data, split_code, env, variable, folder_path) {
+  # ---- initial setup
+  preprocessed_data <- preprocess_all_data_frames(data)
+  csv_elements <- preprocessed_data$data_files_processed
+  index_elements <- preprocessed_data$index_files_processed
+  config_path <- file.path(dirname(folder_path), "config.txt")
 
- # ---- initial setup
- preprocessed_data <- preprocess_all_data_frames(data)
- csv_elements <- preprocessed_data$data_files_processed
- index_elements <- preprocessed_data$index_files_processed
- config_path <- file.path(dirname(folder_path), "config.txt")
+  # ---- main part
+  merged_data_frames <- merge_data_and_index_frames(csv_elements, index_elements)
+  transformed_data_frames <- apply_transformations(merged_data_frames, variable)
 
- # ---- main part
- merged_data_frames <- merge_data_and_index_frames(csv_elements, index_elements)
- transformed_data_frames <- apply_transformations(merged_data_frames, variable)
-
- if (split_code) {
-  if (file.exists(config_path)) {
-   config <- read_simple_config(config_path)
-   transformed_data_frames <- lapply(transformed_data_frames, function(df) {
-    split_code_column(df, config, env) # Apply splitCodeColumn to get Landuse, Position, and InterRow columns!
-   })
-  } else {
-   warning(
-    "Input configuration file not found at: ", config_path,
-    ". If you want to utilize the functionality of `split_code`, ensure your configuration file is placed at the correct path and follows the guidelines specified in the README."
-   )
+  if (split_code) {
+    if (file.exists(config_path)) {
+      config <- read_simple_config(config_path)
+      transformed_data_frames <- lapply(transformed_data_frames, function(df) {
+        split_code_column(df, config, env) # Apply splitCodeColumn to get Landuse, Position, and InterRow columns!
+      })
+    } else {
+      warning(
+        "Input configuration file not found at: ", config_path,
+        ". If you want to utilize the functionality of `split_code`, ensure your configuration file is placed at the correct path and follows the guidelines specified in the README."
+      )
+    }
   }
- }
 
- return(transformed_data_frames)
+  return(transformed_data_frames)
 }

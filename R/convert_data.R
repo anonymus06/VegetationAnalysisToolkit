@@ -13,22 +13,21 @@
 #'
 #' @noRd
 convert_data <- function(df) {
-
- if (ncol(df) < 4) {
-  stop("The input data frame must have at least four columns.")
- }
-
- df[, c(1, 2)] <- lapply(df[, c(1, 2)], function(x) {
-  as.numeric(gsub(",", ".", x))
- })
- df[, 3] <- as.character(df[, 3])
- df[, 4] <- tryCatch(
-  as.Date(df[, 4], format = "%Y-%m-%d"),
-  error = function(e) {
-   warning("Failed to convert the fourth column to Date. NAs have been inserted.")
-   return(rep(NA, nrow(df)))
+  if (ncol(df) < 4) {
+    stop("The input data frame must have at least four columns.")
   }
- )
 
- return(df)
+  df[, c(1, 2)] <- lapply(df[, c(1, 2)], function(x) {
+    as.numeric(gsub(",", ".", x))
+  })
+  df[, 3] <- as.character(df[, 3])
+  df[, 4] <- tryCatch(
+    as.Date(df[, 4], format = "%Y-%m-%d"),
+    error = function(e) {
+      warning("Failed to convert the fourth column to Date. NAs have been inserted.")
+      return(rep(NA, nrow(df)))
+    }
+  )
+
+  return(df)
 }

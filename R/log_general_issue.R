@@ -11,17 +11,17 @@
 #'
 #' @noRd
 log_general_issue <- function(msg, log_file = "error_log.txt") {
- timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
- con <- file(log_file, open = "a")
- on.exit(close(con))
+  timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+  con <- file(log_file, open = "a")
+  on.exit(close(con))
 
- if (is.character(msg)) {
-  message <- paste(timestamp, "-", msg)
-  writeLines(message, con = con)
- } else if (is.list(msg)) { # redundant?
-  lapply(unlist(msg), function(m) {
-   message <- paste(timestamp, "-", gsub("\n", "\\n", m))
-   writeLines(message, con = con)
-  })
- }
+  if (is.character(msg)) {
+    message <- paste(timestamp, "-", msg)
+    writeLines(message, con = con)
+  } else if (is.list(msg)) { # redundant?
+    lapply(unlist(msg), function(m) {
+      message <- paste(timestamp, "-", gsub("\n", "\\n", m))
+      writeLines(message, con = con)
+    })
+  }
 }

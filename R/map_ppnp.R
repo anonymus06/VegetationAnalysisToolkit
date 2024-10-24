@@ -16,44 +16,46 @@
 #' @return A transformed data frame ready for further analysis.
 #'
 #' @noRd
-map_PPNP <- function(data, data_name, last_df, split_code, env, variable, folder_path){
- txt_elements <- data
+map_PPNP <- function(data, data_name, last_df, split_code, env, variable, folder_path) {
+  txt_elements <- data
 
- filtered_data <- txt_elements %>%
-  filter(index %in% last_df$index) %>%
-  merge(last_df, by = "index", all.x = TRUE)
+  filtered_data <- txt_elements %>%
+    filter(index %in% last_df$index) %>%
+    merge(last_df, by = "index", all.x = TRUE)
 
- columns_to_keep <- c("index", variable, "description")
+  columns_to_keep <- c("index", variable, "description")
 
- if (nrow(filtered_data) > 0 && all(columns_to_keep %in% names(filtered_data))) {
-  filtered_data <- filtered_data[, columns_to_keep, drop = FALSE]
- } else {
-  stop("The function failed because 'filtered_data' is empty or missing required columns: ",
-       paste(columns_to_keep, collapse = ", "),
-       ". Ensure the input data and column names are correct.")
- }
-
- date_str <- gsub("[^0-9]", "", data_name)
- new_names <- c("index", variable, "Code", "Date")
- config_path <- file.path(dirname(folder_path), "config.txt")
-
- filtered_data <- add_date_column(filtered_data, date_str) %>%
-  rename_columns_by_position(new_names) %>%
-  convert_data
-
- if (split_code) {
-  if (file.exists(config_path)) {
-   config <- read_simple_config(config_path)
-   filtered_data <- filtered_data %>%
-    split_code_column(config, env)
+  if (nrow(filtered_data) > 0 && all(columns_to_keep %in% names(filtered_data))) {
+    filtered_data <- filtered_data[, columns_to_keep, drop = FALSE]
   } else {
-   warning(
-    "Input configuration file not found at: ", config_path, ".",
-    "If you want to utilize the functionality of `split_code`, ensure your configuration file is
-    placed at the correct path and follows the guidelines specified in the README."
-   )
+    stop(
+      "The function failed because 'filtered_data' is empty or missing required columns: ",
+      paste(columns_to_keep, collapse = ", "),
+      ". Ensure the input data and column names are correct."
+    )
   }
- }
 
- return(list(filtered_data))
+  date_str <- gsub("[^0-9]", "", data_name)
+  new_names <- c("index", variable, "Code", "Date")
+  config_path <- file.path(dirname(folder_path), "config.txt")
+
+  filtered_data <- add_date_column(filtered_data, date_str) %>%
+    rename_columns_by_position(new_names) %>%
+    convert_data()
+
+  if (split_code) {
+    if (file.exists(config_path)) {
+      config <- read_simple_config(config_path)
+      filtered_data <- filtered_data %>%
+        split_code_column(config, env)
+    } else {
+      warning(
+        "Input configuration file not found at: ", config_path, ".",
+        "If you want to utilize the functionality of `split_code`, ensure your configuration file is
+    placed at the correct path and follows the guidelines specified in the README."
+      )
+    }
+  }
+
+  return(list(filtered_data))
 }

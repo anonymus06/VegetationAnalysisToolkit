@@ -9,20 +9,20 @@
 #' @return The result of the action if successful, or `NULL` if an error occurs.
 #' @noRd
 with_error_handling <- function(action, ...) {
- result <- tryCatch(
-  {
-   action(...)
-  },
-  error = function(e) {
-   message(paste0("An error occurred: ", e$message))
-   return(NULL)
+  result <- tryCatch(
+    {
+      action(...)
+    },
+    error = function(e) {
+      message(paste0("An error occurred: ", e$message))
+      return(NULL)
+    }
+  )
+
+  if (is.null(result)) {
+    message("The result is NULL. Check the action for potential issues.")
+    return(invisible(NULL))
   }
- )
 
- if (is.null(result)) {
-  message("The result is NULL. Check the action for potential issues.")
-  return(invisible(NULL))
- }
-
- return(result)
+  return(result)
 }

@@ -18,39 +18,40 @@
 #'
 #' @noRd
 check_datetime_format <- function(current_df, name, file_name, local_issues) {
- split_datetime <- strsplit(as.character(current_df[, 2]), " ")
- time_part <- sapply(split_datetime, function(x) x[1])
+  split_datetime <- strsplit(as.character(current_df[, 2]), " ")
+  time_part <- sapply(split_datetime, function(x) x[1])
 
- if (names(current_df)[1] == "Sample") {
-  # For MC-100 data
-  date_part <- sapply(split_datetime, function(x) x[2])
-  combined_datetime <- paste(date_part, time_part)
-  posix_time <- as.POSIXct(combined_datetime, format = "%m/%d/%Y %H:%M:%S")
+  if (names(current_df)[1] == "Sample") {
+    # For MC-100 data
+    date_part <- sapply(split_datetime, function(x) x[2])
+    combined_datetime <- paste(date_part, time_part)
+    posix_time <- as.POSIXct(combined_datetime, format = "%m/%d/%Y %H:%M:%S")
+  } else if (names(current_df)[1] == "index") {
+    # For PlantPen data
+    date_part <-
+      sapply(split_datetime, function(x) {
+        if (length(x) >= 3 && nchar(x[3]) > 0) {
+          return(x[3])
+        } else {
+          return(x[which(nchar(x) > 0)[1]])
+        }
+      })
+    combined_datetime <- paste(date_part, time_part)
+    posix_time <- as.POSIXct(combined_datetime, format = "%d.%m.%Y %H:%M:%S")
+  }
 
- } else if (names(current_df)[1] == "index") {
-  # For PlantPen data
-  date_part <-
-   sapply(split_datetime, function(x) {
-    if (length(x) >= 3 && nchar(x[3]) > 0) {
-     return(x[3])
-    } else {
-     return(x[which(nchar(x) > 0)[1]])
-    }
-   })
-  combined_datetime <- paste(date_part, time_part)
-  posix_time <- as.POSIXct(combined_datetime, format = "%d.%m.%Y %H:%M:%S")
- }
-
- if (any(is.na(posix_time))) {
-  local_issues <-
-   add_issue(
-    local_issues,
-    name,
-    paste0("Some entries in the Time/Date column have an incorrect format. Expected formats:
+  if (any(is.na(posix_time))) {
+    local_issues <-
+      add_issue(
+        local_issues,
+        name,
+        paste0(
+          "Some entries in the Time/Date column have an incorrect format. Expected formats:
            'HH:MM:SS DD.MM.YYYY' [PlantPen] or 'HH:MM:SS MM/DD/YYYY' [MC-100]. Source file: '",
-           file_name, "'"
-    ))
- }
+          file_name, "'"
+        )
+      )
+  }
 
- return(local_issues)
+  return(local_issues)
 }

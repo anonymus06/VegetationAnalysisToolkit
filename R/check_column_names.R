@@ -15,32 +15,32 @@
 #'
 #' @noRd
 check_column_names <- function(current_df, name, device_type, data_columns, index_columns, file_name, local_issues) {
- mapped_names <- clean_column_names(names(current_df))
+  mapped_names <- clean_column_names(names(current_df))
 
- if (device_type == "PPNP") {
-  expected_data_columns <- c("index", "time", "id", "760 [nm]", "635 [nm]", "NDVI")
-  expected_index_columns <- c("index", "description")
- } else if (device_type == "MC100"){
-  expected_data_columns <- c("Sample")
-  expected_index_columns <- c("index", "description")
- }
+  if (device_type == "PPNP") {
+    expected_data_columns <- c("index", "time", "id", "760 [nm]", "635 [nm]", "NDVI")
+    expected_index_columns <- c("index", "description")
+  } else if (device_type == "MC100") {
+    expected_data_columns <- c("Sample")
+    expected_index_columns <- c("index", "description")
+  }
 
- if (all(data_columns %in% mapped_names)) {
-  # No issue if main data columns match
- } else if (all(index_columns %in% mapped_names)) {
-  # No issue if index columns match
- } else {
-  # Add issue if neither set of columns match
-  local_issues <- add_issue(
-   local_issues,
-   name,
-   paste0(
-    "Your data frame '", name, "' does not match the expected column names! ",
-    "Expected columns for data file: '", paste0(expected_data_columns, collapse = ", "), "'. ",
-    "Expected columns for Index file: '", paste0(index_columns, collapse = ", "), "'. Source file: '", file_name, "'"
-   )
-  )
- }
+  if (all(data_columns %in% mapped_names)) {
+    # No issue if main data columns match
+  } else if (all(index_columns %in% mapped_names)) {
+    # No issue if index columns match
+  } else {
+    # Add issue if neither set of columns match
+    local_issues <- add_issue(
+      local_issues,
+      name,
+      paste0(
+        "Your data frame '", name, "' does not match the expected column names! ",
+        "Expected columns for data file: '", paste0(expected_data_columns, collapse = ", "), "'. ",
+        "Expected columns for Index file: '", paste0(index_columns, collapse = ", "), "'. Source file: '", file_name, "'"
+      )
+    )
+  }
 
- return(local_issues)
+  return(local_issues)
 }

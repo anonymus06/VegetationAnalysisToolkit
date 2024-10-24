@@ -11,32 +11,28 @@
 #' @importFrom openxlsx read.xlsx
 #' @noRd
 load_filtered_excel <- function(variable, output_path, start_row = 8) {
+  # Create a pattern to match the filtered Excel file for the specified variable
+  pattern <- paste0("^", tolower(variable), "_filtered\\.xlsx$") # Case-insensitive match
 
- # Create a pattern to match the filtered Excel file for the specified variable
- pattern <- paste0("^", tolower(variable), "_filtered\\.xlsx$") # Case-insensitive match
+  # List files in the directory matching the pattern
+  files <- list.files(output_path, pattern = pattern, full.names = TRUE, ignore.case = TRUE)
 
- # List files in the directory matching the pattern
- files <- list.files(output_path, pattern = pattern, full.names = TRUE, ignore.case = TRUE)
+  # Exclude temporary files created by Excel (starting with "~$")
+  files <- files[!grepl("^~\\$", basename(files))]
 
- # Exclude temporary files created by Excel (starting with "~$")
- files <- files[!grepl("^~\\$", basename(files))]
+  # Check if any filtered file is found
+  if (length(files) == 0) {
+    stop("No filtered file found in the output folder.")
+  }
 
- # Check if any filtered file is found
- if (length(files) == 0) {
-  stop("No filtered file found in the output folder.")
- }
+  # Ensure only one filtered file exists
+  if (length(files) > 1) {
+    stop("Multiple filtered files found in the output folder. Please ensure only one filtered file exists.")
+  }
 
- # Ensure only one filtered file exists
- if (length(files) > 1) {
-  stop("Multiple filtered files found in the output folder. Please ensure only one filtered file exists.")
- }
+  # Read the filtered data from the Excel file
+  filtered_file_path <- files[1]
+  df <- read.xlsx(filtered_file_path, startRow = start_row)
 
- # Read the filtered data from the Excel file
- filtered_file_path <- files[1]
- df <- read.xlsx(filtered_file_path, startRow = start_row)
-
- return(df)
+  return(df)
 }
-
-# Example usage:
-# df <- load_filtered

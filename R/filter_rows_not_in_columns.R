@@ -12,7 +12,7 @@
 #'
 #' @noRd
 filter_rows_not_in_columns <- function(df, required_columns) {
- rows_to_keep <- apply(df, 1, function(row) !all(row %in% required_columns))
- filtered_df <- df[rows_to_keep, ]
- return(filtered_df)
+  rows_to_keep <- apply(df, 1, function(row) !all(row %in% required_columns))
+  filtered_df <- df[rows_to_keep, ]
+  return(filtered_df)
 }
