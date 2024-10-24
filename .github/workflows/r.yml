@@ -6,7 +6,7 @@
 # See https://github.com/r-lib/actions/tree/master/examples#readme for
 # additional example workflows available for the R community.
 
-name: R CI Lint, Style, and Test
+name: R CI
 
 on:
   push:
@@ -42,7 +42,7 @@ jobs:
       # Install dependencies
       - name: Install dependencies
         run: |
-          install.packages(c("remotes", "rcmdcheck", "lintr", "styler", "testthat"))
+          install.packages(c("remotes", "rcmdcheck", "devtools", "testthat"))
           remotes::install_deps(dependencies = TRUE)
         shell: Rscript {0}
 
