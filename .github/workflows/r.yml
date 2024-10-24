@@ -49,7 +49,7 @@ jobs:
       # Run tests with testthat
       - name: Run tests
         run: |
-          testthat::test_package("VegetationAnalysisToolkit")
+          devtools::test()
         shell: Rscript {0}
 
       # Run devtools::check()
