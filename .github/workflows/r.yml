@@ -61,6 +61,14 @@ jobs:
       #- name: Check Pandoc installation
       #  run: |
       #    pandoc --version
+          
+      # Install dependencies from DESCRIPTION file
+      - name: Install dependencies
+        run: |
+          install.packages(c("remotes", "rcmdcheck", "devtools", "testthat", "rmarkdown", "pkgbuild"))
+          remotes::install_cran("devtools", upgrade = "always")
+          remotes::install_deps(dependencies = TRUE)
+        shell: Rscript {0}
 
       # Install Rtools for Windows
       - name: Install Rtools
@@ -72,14 +80,6 @@ jobs:
       - name: Check Rtools installation
         run: |
           Rscript -e "pkgbuild::check_build_tools(debug = TRUE)"
-          
-      # Install dependencies from DESCRIPTION file
-      - name: Install dependencies
-        run: |
-          install.packages(c("remotes", "rcmdcheck", "devtools", "testthat", "rmarkdown"))
-          remotes::install_cran("devtools", upgrade = "always")
-          remotes::install_deps(dependencies = TRUE)
-        shell: Rscript {0}
 
       # Install the VegetationAnalysisToolkit package from GitHub
       - name: Install VegetationAnalysisToolkit
