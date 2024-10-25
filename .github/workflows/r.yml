@@ -25,7 +25,19 @@ jobs:
         r-version: ['4.3.3']
 
     steps:
-      - uses: actions/checkout@v4
+      # - uses: actions/checkout@v4
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Rtools
+        run: |
+          Rtools_path <- "C:/Rtools"
+          if (!dir.exists(Rtools_path)) {
+            dir.create(Rtools_path)
+            download.file("https://cran.r-project.org/bin/windows/Rtools/Rtools40-x86_64.exe", "Rtools.exe")
+            shell("Rtools.exe /S")
+          }
 
       # Setup R version
       - name: Set up R ${{ matrix.r-version }}
@@ -71,10 +83,10 @@ jobs:
         shell: Rscript {0}
 
       # Install Rtools for Windows
-      - name: Install Rtools
-        if: runner.os == 'Windows'
-        run: |
-          choco install rtools --no-progress
+      # - name: Install Rtools
+      #  if: runner.os == 'Windows'
+      #  run: |
+      #    choco install rtools --no-progress
 
       # Verify Rtools installation
       #- name: Check Rtools installation
