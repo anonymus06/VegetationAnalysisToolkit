@@ -33,10 +33,21 @@ jobs:
         with:
           r-version: ${{ matrix.r-version }}
 
-      #- name: Install pandoc
-      #  run: |
-      #    Invoke-WebRequest -Uri "https://github.com/jgm/pandoc/releases/download/2.19.2/pandoc-2.19.2-windows-x86_64.msi" -OutFile "pandoc.msi"
-      #    Start-Process msiexec.exe -ArgumentList '/i', 'pandoc.msi', '/quiet', '/norestart' -NoNewWindow -Wait
+      - name: Install pandoc
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/jgm/pandoc/releases/download/2.19.2/pandoc-2.19.2-windows-x86_64.msi" -OutFile "pandoc.msi"
+          Start-Process msiexec.exe -ArgumentList '/i', 'pandoc.msi', '/quiet', '/norestart' -NoNewWindow -Wait
+
+       # Add Pandoc to PATH
+      - name: Add Pandoc to PATH
+        run: |
+          $env:Path += ";C:\Program Files\Pandoc"
+          Write-Host "Pandoc Path: $env:Path"
+
+      # Check Pandoc installation
+      - name: Check Pandoc installation
+        run: |
+          pandoc --version
 
       # Install Rtools for Windows
       - name: Install Rtools
