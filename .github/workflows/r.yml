@@ -38,6 +38,11 @@ jobs:
           Invoke-WebRequest -Uri "https://github.com/jgm/pandoc/releases/download/2.19.2/pandoc-2.19.2-windows-x86_64.msi" -OutFile "pandoc.msi"
           Start-Process msiexec.exe -ArgumentList '/i', 'pandoc.msi', '/quiet', '/norestart' -NoNewWindow -Wait
 
+      # Check that Pandoc is installed
+      - name: Verify Pandoc installation
+        run: |
+          pandoc --version
+
       # Install Rtools for Windows
       - name: Install Rtools
         if: runner.os == 'Windows'
@@ -47,7 +52,7 @@ jobs:
       # Install dependencies from DESCRIPTION file
       - name: Install dependencies
         run: |
-          install.packages(c("remotes", "rcmdcheck", "devtools", "testthat"))
+          install.packages(c("remotes", "rcmdcheck", "devtools", "testthat", "rmarkdown"))
           remotes::install_cran("devtools", upgrade = "always")
           remotes::install_deps(dependencies = TRUE)
         shell: Rscript {0}
