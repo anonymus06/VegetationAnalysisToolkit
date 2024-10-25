@@ -45,9 +45,9 @@ jobs:
           Write-Host "Pandoc Path: $env:Path"
 
       # Check Pandoc installation
-      - name: Check Pandoc installation
-        run: |
-          pandoc --version
+      #- name: Check Pandoc installation
+      #  run: |
+      #    pandoc --version
 
       # Install Rtools for Windows
       - name: Install Rtools
