@@ -31,13 +31,16 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install Rtools
+        if: runner.os == 'Windows'
         run: |
-          Rtools_path <- "C:/Rtools"
-          if (!dir.exists(Rtools_path)) {
-            dir.create(Rtools_path)
-            download.file("https://cran.r-project.org/bin/windows/Rtools/Rtools40-x86_64.exe", "Rtools.exe")
-            shell("Rtools.exe /S")
-          }
+          Rscript -e "
+            Rtools_path <- 'C:/Rtools'
+            if (!dir.exists(Rtools_path)) {
+              dir.create(Rtools_path)
+              download.file('https://cran.r-project.org/bin/windows/Rtools/Rtools40-x86_64.exe', 'Rtools.exe')
+              shell('Rtools.exe /S')
+            }
+          "
 
       # Setup R version
       - name: Set up R ${{ matrix.r-version }}
