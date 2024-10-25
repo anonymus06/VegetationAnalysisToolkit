@@ -33,6 +33,10 @@ jobs:
         with:
           r-version: ${{ matrix.r-version }}
 
+      - name: Install Pandoc
+        run: |
+          sudo apt-get install -y pandoc
+
       # Install Rtools for Windows
       - name: Install Rtools
         if: runner.os == 'Windows'
@@ -60,10 +64,10 @@ jobs:
           Rscript -e "library(VegetationAnalysisToolkit)"
 
       # Run tests with testthat
-      - name: Run tests
-        run: |
-          devtools::test()
-        shell: Rscript {0}
+      # - name: Run tests
+      # run: |
+      #   devtools::test()
+      # shell: Rscript {0}
 
       # Run devtools::check()
       - name: Check package
