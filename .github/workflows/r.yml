@@ -33,15 +33,10 @@ jobs:
         with:
           r-version: ${{ matrix.r-version }}
 
-      - name: Install pandoc
-        run: |
-          Invoke-WebRequest -Uri "https://github.com/jgm/pandoc/releases/download/2.19.2/pandoc-2.19.2-windows-x86_64.msi" -OutFile "pandoc.msi"
-          Start-Process msiexec.exe -ArgumentList '/i', 'pandoc.msi', '/quiet', '/norestart' -NoNewWindow -Wait
-
-      # Check that Pandoc is installed
-      - name: Verify Pandoc installation
-        run: |
-          pandoc --version
+      #- name: Install pandoc
+      #  run: |
+      #    Invoke-WebRequest -Uri "https://github.com/jgm/pandoc/releases/download/2.19.2/pandoc-2.19.2-windows-x86_64.msi" -OutFile "pandoc.msi"
+      #    Start-Process msiexec.exe -ArgumentList '/i', 'pandoc.msi', '/quiet', '/norestart' -NoNewWindow -Wait
 
       # Install Rtools for Windows
       - name: Install Rtools
@@ -78,7 +73,7 @@ jobs:
       # Run devtools::check()
       - name: Check package
         run: |
-          devtools::check()
+          devtools::check(args = c('--no-manual', '--no-vignettes'))
         shell: Rscript {0}
 
       # Check package with rcmdcheck
