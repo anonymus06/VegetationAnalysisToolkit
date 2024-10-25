@@ -50,8 +50,10 @@ jobs:
       # Install the VegetationAnalysisToolkit package from GitHub
       - name: Install VegetationAnalysisToolkit
         run: |
-          remotes::install_github("anonymus06/VegetationAnalysisToolkit")
+          remotes::install_github("anonymus06/VegetationAnalysisToolkit", auth_token = Sys.getenv("GH_PAT"))
         shell: Rscript {0}
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
 
       # Run tests with testthat
       - name: Run tests
