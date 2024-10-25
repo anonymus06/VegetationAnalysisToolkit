@@ -24,6 +24,9 @@ jobs:
       matrix:
         r-version: ['4.3.3']
 
+    env:
+      R_LIBS_USER: "${{ runner.temp }}/Rlibs"
+
     steps:
       - uses: actions/checkout@v4
 
