@@ -55,6 +55,10 @@ jobs:
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
 
+      - name: Load package
+        run: |
+          library(VegetationAnalysisToolkit)
+
       # Run tests with testthat
       - name: Run tests
         run: |
