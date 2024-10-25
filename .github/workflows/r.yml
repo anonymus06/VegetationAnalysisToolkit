@@ -67,6 +67,11 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           choco install rtools --no-progress
+
+      # Verify Rtools installation
+      - name: Check Rtools installation
+        run: |
+          Rscript -e "pkgbuild::check_build_tools(debug = TRUE)"
           
       # Install dependencies from DESCRIPTION file
       - name: Install dependencies
