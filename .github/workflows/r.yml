@@ -24,20 +24,8 @@ jobs:
       matrix:
         r-version: ['4.3.3']
 
-    env:
-      R_LIBS_USER: "${{ runner.temp }}/Rlibs"
-
     steps:
       - uses: actions/checkout@v4
-
-    # Cache R libraries to speed up builds and ensure fresh installs
-      - name: Cache R libraries
-        uses: actions/cache@v2
-        with:
-          path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-r-${{ matrix.r-version }}-${{ hashFiles('**/DESCRIPTION') }}
-          restore-keys: |
-            ${{ runner.os }}-r-${{ matrix.r-version }}-
 
       # Setup R version
       - name: Set up R ${{ matrix.r-version }}
