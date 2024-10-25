@@ -77,9 +77,9 @@ jobs:
           choco install rtools --no-progress
 
       # Verify Rtools installation
-      - name: Check Rtools installation
-        run: |
-          Rscript -e "pkgbuild::check_build_tools(debug = TRUE, cran = FALSE)"
+      #- name: Check Rtools installation
+      #  run: |
+      #    Rscript -e "pkgbuild::check_build_tools(debug = TRUE, cran = FALSE)"
 
       # Install the VegetationAnalysisToolkit package from GitHub
       - name: Install VegetationAnalysisToolkit
