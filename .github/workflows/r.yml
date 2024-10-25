@@ -57,7 +57,7 @@ jobs:
 
       - name: Load package
         run: |
-          library(VegetationAnalysisToolkit)
+          library("VegetationAnalysisToolkit")
 
       # Run tests with testthat
       - name: Run tests
