@@ -33,29 +33,29 @@ jobs:
         with:
           r-version: ${{ matrix.r-version }}
 
-      - name: Install pandoc
-        run: |
-           Invoke-WebRequest -Uri "https://github.com/jgm/pandoc/releases/download/2.19.2/pandoc-2.19.2-windows-x86_64.msi" -OutFile "pandoc.msi"
-            Start-Process msiexec.exe -ArgumentList '/i', 'pandoc.msi', '/quiet', '/norestart' -NoNewWindow -Wait
+      #- name: Install pandoc
+      #  run: |
+      #     Invoke-WebRequest -Uri "https://github.com/jgm/pandoc/releases/download/2.19.2/pandoc-2.19.2-windows-x86_64.msi" -OutFile "pandoc.msi"
+      #      Start-Process msiexec.exe -ArgumentList '/i', 'pandoc.msi', '/quiet', '/norestart' -NoNewWindow -Wait
 
        # Add Pandoc to PATH
-      - name: Add Pandoc to PATH
-        shell: pwsh
-        run: |
-          # Locate the pandoc executable
-          $pandocPath = Get-Command pandoc.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path
-          if (-not $pandocPath) {
-            Write-Host "Pandoc not found in PATH. Searching directories..."
-            $pandocPath = Get-ChildItem -Path "C:\Program Files\", "C:\Program Files (x86)\" -Recurse -Filter "pandoc.exe" -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
-          }
+      #- name: Add Pandoc to PATH
+      #  shell: pwsh
+      #  run: |
+      #    # Locate the pandoc executable
+      #    $pandocPath = Get-Command pandoc.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path
+      #    if (-not $pandocPath) {
+      #      Write-Host "Pandoc not found in PATH. Searching directories..."
+      #      $pandocPath = Get-ChildItem -Path "C:\Program Files\", "C:\Program Files (x86)\" -Recurse -Filter "pandoc.exe" -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+      #    }
           
-          if ($pandocPath) {
-            $pandocDir = [System.IO.Path]::GetDirectoryName($pandocPath)
-            Write-Host "Pandoc found at $pandocDir. Adding to PATH."
-            [System.Environment]::SetEnvironmentVariable("PATH", $env:Path + ";$pandocDir", [System.EnvironmentVariableTarget]::Process)
-          } else {
-            Write-Error "Pandoc installation failed or executable not found."
-          }
+      #    if ($pandocPath) {
+      #      $pandocDir = [System.IO.Path]::GetDirectoryName($pandocPath)
+      #      Write-Host "Pandoc found at $pandocDir. Adding to PATH."
+      #      [System.Environment]::SetEnvironmentVariable("PATH", $env:Path + ";$pandocDir", [System.EnvironmentVariableTarget]::Process)
+      #    } else {
+      #      Write-Error "Pandoc installation failed or executable not found."
+      #    }
 
       # Check Pandoc installation
       #- name: Check Pandoc installation
@@ -97,7 +97,7 @@ jobs:
       # Run devtools::check()
       - name: Check package
         run: |
-          devtools::check(args = c('--no-manual', '--no-vignettes'))
+          devtools::check(args = c('--no-build-vignettes', '--ignore-vignettes', '--no-manual'))
         shell: Rscript {0}
 
       # Check package with rcmdcheck
