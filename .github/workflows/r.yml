@@ -79,7 +79,7 @@ jobs:
       # Verify Rtools installation
       - name: Check Rtools installation
         run: |
-          Rscript -e "pkgbuild::check_build_tools(debug = TRUE)"
+          Rscript -e "pkgbuild::check_build_tools(debug = TRUE, cran = FALSE)"
 
       # Install the VegetationAnalysisToolkit package from GitHub
       - name: Install VegetationAnalysisToolkit
