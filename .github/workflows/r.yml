@@ -97,7 +97,7 @@ jobs:
       # Run devtools::check()
       - name: Check package
         run: |
-          devtools::check(args = c('--no-build-vignettes', '--ignore-vignettes', '--no-manual'))
+          devtools::check(vignettes = FALSE)
         shell: Rscript {0}
 
       # Check package with rcmdcheck
