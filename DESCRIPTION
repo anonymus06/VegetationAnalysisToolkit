@@ -19,16 +19,16 @@ Imports:
     ggplot2,
     lubridate,
     plotly, 
-	stats,
-	utils,
+    stats,
+    utils,
     crayon,
     purrr,
-	rlang
+    rlang
 Suggests:
     testthat (>= 3.0.0),
     knitr,
     rmarkdown,
-	readxl
+    readxl
 Config/testthat/edition: 3
 Config/testthat/parallel: TRUE
 VignetteBuilder: knitr
