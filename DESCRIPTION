@@ -23,8 +23,7 @@ Imports:
     utils,
     crayon,
     purrr,
-    rlang,
-    readxl
+    rlang
 Suggests:
     testthat (>= 3.0.0),
     knitr,
