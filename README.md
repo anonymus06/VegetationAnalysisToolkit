@@ -7,7 +7,7 @@
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/VegetationAnalysisToolkit)](https://cran.r-project.org/package=VegetationAnalysisToolkit)
-[![R-CMD-check](https://github.com/VegetationAnalysisToolkit/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/VegetationAnalysisToolkit/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/anonymus06/VegetationAnalysisToolkit/actions/workflows/r2.yml/badge.svg?event=push)](https://github.com/anonymus06/VegetationAnalysisToolkit/actions/workflows/r2.yml)
 [![Codecov test
 coverage](https://codecov.io/gh/tidyverse/VegetationAnalysisToolkit/branch/main/graph/badge.svg)](https://app.codecov.io/gh/VegetationAnalysisToolkit?branch=main)
 <!-- badges: end -->
