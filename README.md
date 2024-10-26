@@ -32,8 +32,8 @@ user-friendly environment:
 - `process_PlantPen_NDVI_PRI()` processes PlantPen NDVI & PRI data.
 - `process_MC100_Chlorophyll()` processes MC-100 Chlorophyll
   Concentration Meter data.
-- `plot_measurement_data()` generates visualizations.
-- `generate_statistics()` computes statistics.
+- `plot_measurement_data()` generates basic visualizations.
+- `generate_statistics()` computes descriptive statistics.
 
 If you are new to VegetationAnalysisToolkit, the best place to start
 after installing the package is trying to reproduce the example listed
