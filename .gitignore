@@ -8,6 +8,6 @@ val_issues.txt
 error_log.txt
 out
 VegetationAnalysisToolkit_Project
-man/*.Rd
 .DS_Store
 *.tar.gz
+.github
