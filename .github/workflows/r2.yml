@@ -41,7 +41,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: rcmdcheck
+          extra-packages: rcmdcheck, readxl
 
       - name: Install remotes
         run: Rscript -e 'install.packages("remotes")'
@@ -49,8 +49,8 @@ jobs:
       - name: Install all dependencies
         run: Rscript -e 'remotes::install_deps(dependencies = TRUE)'
 
-      - name: Install readxl
-        run: Rscript -e 'install.packages("readxl")'
+      #- name: Install readxl
+      #  run: Rscript -e 'install.packages("readxl")'
 
       - name: Run R CMD check
         uses: r-lib/actions/check-r-package@v2
