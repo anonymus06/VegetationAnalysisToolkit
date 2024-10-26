@@ -43,6 +43,9 @@ jobs:
         with:
           extra-packages: rcmdcheck
 
+      - name: Install remotes
+        run: Rscript -e 'install.packages("remotes")'
+
       - name: Install all dependencies
         run: Rscript -e 'remotes::install_deps(dependencies = TRUE)'
 
