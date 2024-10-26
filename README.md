@@ -14,7 +14,7 @@ coverage](https://codecov.io/gh/tidyverse/VegetationAnalysisToolkit/branch/main/
 
 ## Overview
 
-VegetationAnalysisToolkit package is designed to provide a unified
+VegetationAnalysisToolkit is designed to provide a unified
 software platform for soil scientists and researchers, facilitating the
 efficient management and processing of field measurement data. The
 toolkit currently supports two key vegetation indices: the Normalized
