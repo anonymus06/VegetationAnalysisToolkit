@@ -7,14 +7,14 @@
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/VegetationAnalysisToolkit)](https://cran.r-project.org/package=VegetationAnalysisToolkit)
-[![R-CMD-check](https://github.com/VegetationAnalysisToolkit/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/VegetationAnalysisToolkit/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/anonymus06/VegetationAnalysisToolkit/actions/workflows/r2.yml/badge.svg?event=push)](https://github.com/anonymus06/VegetationAnalysisToolkit/actions/workflows/r2.yml)
 [![Codecov test
 coverage](https://codecov.io/gh/tidyverse/VegetationAnalysisToolkit/branch/main/graph/badge.svg)](https://app.codecov.io/gh/VegetationAnalysisToolkit?branch=main)
 <!-- badges: end -->
 
 ## Overview
 
-VegetationAnalysisToolkit package is designed to provide a unified
+VegetationAnalysisToolkit is designed to provide a unified
 software platform for soil scientists and researchers, facilitating the
 efficient management and processing of field measurement data. The
 toolkit currently supports two key vegetation indices: the Normalized
@@ -32,8 +32,8 @@ user-friendly environment:
 - `process_PlantPen_NDVI_PRI()` processes PlantPen NDVI & PRI data.
 - `process_MC100_Chlorophyll()` processes MC-100 Chlorophyll
   Concentration Meter data.
-- `plot_measurement_data()` generates visualizations.
-- `generate_statistics()` computes statistics.
+- `plot_measurement_data()` generates basic visualizations.
+- `generate_statistics()` computes descriptive statistics.
 
 If you are new to VegetationAnalysisToolkit, the best place to start
 after installing the package is trying to reproduce the example listed
